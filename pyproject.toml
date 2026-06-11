@@ -1,0 +1,30 @@
+[project]
+name = "llm-arch-insight"
+version = "0.1.0"
+description = "Initial project for refamilliarizing with neural network architectures and frameworks."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "black>=26.5.1",
+    "isort>=8.0.1",
+    "pycodestyle>=2.14.0",
+    "pyflakes>=3.4.0",
+    "pytest>=9.0.3",
+    "ruff>=0.15.16",
+]
+
+[coverage-threshold]
+line_coverage_min = 80
+fine_line_coverage_min = 80
+
+[tool.coverage.run]
+omit = []
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    "**/conftest.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
