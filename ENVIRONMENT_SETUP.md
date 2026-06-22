@@ -68,4 +68,8 @@ fi
 
 Where `<id_key_placeholder>` is your specific key load e.g. for git SSH connection.
 
-## 6. 
+## 6. Install and setup Docker:
+
+Install Docker from official website and log in to your proper account.
+
+Under `Settings/WSL Integration` enable integration with your distro.

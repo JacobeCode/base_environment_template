@@ -3,7 +3,7 @@
 {
 	"name": "debian-dev-container",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:resolute",
+	"image": "mcr.microsoft.com/devcontainers/base:debian-12",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
@@ -22,7 +22,7 @@
 	"customizations": {
 		"vscode": {
 			"extensions": ["ms-python.python", "charliermarsh.ruff"],
-			"settings": { "python.defaultInterpreterPath": "/workspaces/llm_arch_insight/.venv/bin/python" }	// mount for host machine, not local 
+			"settings": { "python.defaultInterpreterPath": "/workspaces/base_environment_template/.venv/bin/python" }	// mount for host machine, not local 
 		}
 	},
 
