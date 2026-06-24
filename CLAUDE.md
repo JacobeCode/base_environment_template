@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`llm-arch-insight` is an early-stage Python project for refamiliarizing with neural network architectures and frameworks. Currently a minimal skeleton under `src/`.
+`{{cookiecutter.project_name}}` is an early-stage Python project for refamiliarizing with neural network architectures and frameworks. Currently a minimal skeleton under `src/`.
 
 ## Environment
 

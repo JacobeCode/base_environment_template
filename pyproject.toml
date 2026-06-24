@@ -1,5 +1,5 @@
 [project]
-name = "base_environment_template"
+name = "{{cookiecutter.project_name}}"
 version = "0.1.0"
 description = "Initial project for refamilliarizing with neural network architectures and frameworks."
 readme = "README.md"
