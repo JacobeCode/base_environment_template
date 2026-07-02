@@ -23,7 +23,7 @@
     "customizations": {
         "vscode": {
             "extensions": ["ms-python.python", "charliermarsh.ruff"],
-            "settings": { "python.defaultInterpreterPath": "/workspaces/base_environment_template/.venv/bin/python" }
+            "settings": { "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python" }
         }
     }
 }

@@ -16,6 +16,15 @@ dependencies = [
     "vibepod>=0.14.0",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+
 [coverage-threshold]
 line_coverage_min = 80
 fine_line_coverage_min = 80
