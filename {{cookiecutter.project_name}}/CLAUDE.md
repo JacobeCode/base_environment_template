@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`{{cookiecutter.project_name}}` is an early-stage Python project for refamiliarizing with neural network architectures and frameworks. Currently a minimal skeleton under `src/`.
+`test_template` is an early-stage Python project for refamiliarizing with neural network architectures and frameworks. Currently a minimal skeleton under `src/`.
 
 ## Environment
 
@@ -22,7 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Structure
 
 - `src/template/` — example/template module showing the project layout for new code.
-- `src/test/` — test suite, run via pytest.
+- `src/test/` — test suite, run via pytest. Not created yet; `pyproject.toml` and `.pre-commit-config.yaml` already reference it, so create tests here as soon as any non-trivial code is added.
 
 ## Code style
 

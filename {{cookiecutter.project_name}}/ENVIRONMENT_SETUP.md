@@ -1,36 +1,39 @@
 # Common environment project setup
 
+## 1. Setting up WSL2
 
-
-## 1. Setting up WSL2 in IDE:
-
-To setup correct WSL2 subsystem for IDE:
+To set up the correct WSL2 subsystem for your IDE:
 
 ```bash
 wsl --install
-wsl --list --online # list of accesible distributions
-wsl --install -d Debian 
+wsl --list --online   # list of available distributions
+wsl --install -d Debian
 ```
 
-For current projects, by default `Debian` will be used distro.
+For current projects, `Debian` is used as the default distro.
 
-## 2. Updating IDE plug-ins:
+> **Tip:** Run `wsl --update` periodically to stay on the latest WSL2 kernel — older kernels can cause subtle networking and file-watcher issues inside dev containers.
 
-For current setup stated below plug-in's are needed:
+> **Tip:** Keep project files inside the Linux filesystem (e.g. `~/projects/...`), not under `/mnt/c/...`. Cross-filesystem access from WSL2 to Windows drives is significantly slower and will make `uv sync`, git operations, and file watchers noticeably sluggish.
+
+## 2. Updating IDE plug-ins
+
+For the setup described below, the following plug-ins are needed:
 - WSL
-- DevContainers
+- Dev Containers
 
-## 3. Updating system / bash utils:
+## 3. Updating system / bash utils
 
-For Debian useful packages:
+Useful packages for Debian:
 
 ```bash
+sudo apt-get update
 sudo apt-get install neovim
 ```
 
 ## 4. Setting up git for `Debian` / `Linux`
 
-For setting up git for the subsystem get:
+Install git for the subsystem:
 
 ```bash
 sudo apt-get update
@@ -39,25 +42,27 @@ sudo apt-get install git-all
 git --version   # check install
 ```
 
-For correct git credencials and configuration, generate SSH keys by:
+For git credentials and configuration, generate SSH keys:
 
 ```bash
 ssh-keygen -t ed25519 -C "changetheemail@email.com"
 
-# set up passphrase and location
-# get the public key and set up on github.com
+# set a passphrase and confirm the save location
+# then add the public key (~/.ssh/id_ed25519.pub) to github.com
 ```
 
-There may be need for setting up, git config:
+Set your git identity:
 
 ```bash
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 ```
 
-5. Setting up `Debian` SSH agent autostart: 
+> **Tip:** Verify SSH access to GitHub works end-to-end before relying on it: `ssh -T git@github.com`.
 
-To "autostart" SSH agent in `Debian` add following lines to your `.bashrc`:
+## 5. Setting up SSH agent autostart on `Debian`
+
+To autostart the SSH agent in `Debian`, add the following to your `.bashrc`:
 
 ```bash
 if [ -z "$SSH_AUTH_SOCK" ]; then
@@ -66,27 +71,39 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
 fi
 ```
 
-Where `<id_key_placeholder>` is your specific key load e.g. for git SSH connection.
+Where `<id_key_placeholder>` is the specific key to load, e.g. for git SSH connections.
 
-## 6. Install and setup Docker:
+> **Tip:** Confirm the agent picked up your key with `ssh-add -l`. If you're working inside this repo's `.devcontainer`, note that `SSH_AUTH_SOCK` is already forwarded in via the `mounts` entry in `devcontainer.json` — you generally don't need to re-run `ssh-agent` inside the container itself, just make sure it's running on the WSL host.
 
-Install Docker from official website and log in to your proper account.
+## 6. Install and set up Docker
 
-Under `Settings/WSL Integration` enable integration with your distro.
+Install Docker Desktop from the official website and log in to your account.
 
-The Docker daemon binds to a Unix socket, not a TCP port. By default it's the root user that owns the Unix socket, and other users can only access it using sudo. The Docker daemon always runs as the root user.
+Under `Settings > Resources > WSL Integration`, enable integration with your distro.
 
-To create proper membership for docker and evaluate:
+The Docker daemon binds to a Unix socket, not a TCP port. By default the root user owns that socket, so other users need `sudo` to access it — the Docker daemon itself always runs as root.
+
+To grant your user access without `sudo`:
 
 ```bash
 sudo groupadd docker
 sudo usermod -aG docker $USER
 
-# restart or activate through
+# restart your shell, or activate the group immediately with:
 newgrp docker
 docker run hello-world
 ```
 
-## 7. `.devcontainers`
+> **Tip:** In Docker Desktop, make sure "Use the WSL 2 based engine" is checked under `Settings > General` — without it, WSL integration silently won't work.
 
-New environment is setup on the `Debian` distribution through `.devcontainers` to isolate tools from the rest of the system. For more information about configuration you can reach out to: [VSCode .devcontainers](https://code.visualstudio.com/docs/devcontainers/create-dev-container) or to proper `.devcontainer` directory in this repository.
+## 7. `.devcontainer`
+
+The project environment is set up on the `Debian` distribution through `.devcontainer` to isolate tools from the rest of the system. See [VS Code Dev Containers docs](https://code.visualstudio.com/docs/devcontainers/create-dev-container) or this repo's own `.devcontainer/devcontainer.json` for the concrete configuration.
+
+This repo's dev container already:
+- Pins Python 3.12 and installs Node LTS via devcontainer features.
+- Installs the Claude Code CLI feature and forwards your host `~/.claude` config into the container.
+- Forwards your host SSH agent socket (`SSH_AUTH_SOCK`) so git SSH auth works without copying keys into the container.
+- Runs `uv sync` automatically as its `postCreateCommand`, so dependencies are installed on first container build without a manual step.
+
+> **Tip:** If you change `devcontainer.json` (e.g. add a feature or mount), use the "Dev Containers: Rebuild Container" command instead of just reloading — feature and mount changes don't apply on a simple reload.
