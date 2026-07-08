@@ -1,0 +1,45 @@
+fail_fast: true
+
+default_install_hook_types: [pre-commit, pre-merge-commit]
+default_stages: [pre-commit, pre-merge-commit]
+
+# The rendered tree is Jinja, not valid Python/YAML/TOML — keep every
+# parsing hook out of it. Individual hooks can still narrow further.
+exclude: '^\{\{cookiecutter\.project_slug\}\}/'
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: debug-statements        # NB: will flag the print()s in your hooks — see note
+      - id: check-ast
+      - id: fix-byte-order-marker
+      - id: check-json
+        exclude: ^(?!.*\.json$).*$
+      - id: check-yaml
+        exclude: ^(?!.*\.yaml$).*$
+      - id: detect-private-key
+      - id: check-case-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: check-added-large-files
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.16
+    hooks:
+      - id: ruff-format
+        types_or: [python, pyi]
+        args: [--fix]
+      - id: ruff-check
+        types_or: [python, pyi]
+
+  - repo: local
+    hooks:
+      - id: pytest-hooks
+        name: pytest (template hooks)
+        entry: uv run pytest tests/
+        stages: [pre-commit, manual]
+        language: system
+        pass_filenames: false
+        files: ^(hooks/|tests/)

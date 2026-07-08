@@ -1,27 +1,23 @@
 [project]
-name = "{{cookiecutter.project_name}}"
+name = "base_env_project"
 version = "0.1.0"
-description = "Initial project template."
+description = "Tooling/tests for the Cookiecutter template repo (not the generated project)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "black>=26.5.1",
-    "docker>=7.1.0",
     "isort>=8.0.1",
     "pycodestyle>=2.14.0",
     "pyflakes>=3.4.0",
     "pytest>=9.0.3",
     "ruff>=0.15.16",
-    "skillspector",
+    "pytest-cookies>=0.7",
+    "pre-commit>=4.1.0",
 ]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 pythonpath = [
-    "src"
+    "tests"
 ]
 
 [coverage-threshold]
@@ -33,12 +29,10 @@ omit = []
 
 [tool.ruff]
 line-length = 120
-exclude = [
-    "**/conftest.py",
+force-exclude = true
+extend-exclude = [
+    "{{ cookiecutter.project_slug }}",
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-
-[tool.uv.sources]
-skillspector = { git = "https://github.com/NVIDIA/skillspector.git" }
+select = ["E", "F", "I", "UP", "B"]

@@ -1,5 +1,8 @@
 {
-  "project_name": "base_env_project",
+  "project_name": "Base Environment Template",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
   "author": "jacobecode",
-  "python_version": "3.12"
+  "python_version": "3.12",
+  "local_model": ["qwen2.5-coder:14b", "qwen2.5-coder:7b", "deepseek-coder-v2:16b", "none"],
+  "gpu_train": ["no", "yes"]
 }
