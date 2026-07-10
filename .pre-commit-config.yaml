@@ -5,11 +5,12 @@ default_stages: [pre-commit, pre-merge-commit]
 
 # The rendered tree is Jinja, not valid Python/YAML/TOML — keep every
 # parsing hook out of it. Individual hooks can still narrow further.
+# If some common scripts are meant to be included edit this out.
 exclude: '^\{\{cookiecutter\.project_slug\}\}/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: debug-statements        # NB: will flag the print()s in your hooks — see note
       - id: check-ast
@@ -26,20 +27,26 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.16
+    rev: v0.15.21
     hooks:
-      - id: ruff-format
+      - id: ruff-check
         types_or: [python, pyi]
         args: [--fix]
-      - id: ruff-check
+      - id: ruff-format
         types_or: [python, pyi]
 
   - repo: local
     hooks:
-      - id: pytest-hooks
-        name: pytest (template hooks)
-        entry: uv run pytest tests/
+      - id: pytest-template-hooks
+        name: pytest (template render + hooks testing + total coverage)
+        entry: uv run pytest tests/   # --cov=hooks / fail_under come from pyproject
         stages: [pre-commit, manual]
+        language: system
+        pass_filenames: false
+        files: ^(hooks/|tests/|cookiecutter\.json)
+      - id: coverage-threshold
+        name: per-file coverage floor (hooks)
+        entry: bash -c "uv run coverage json -q && uv run coverage-threshold"
         language: system
         pass_filenames: false
         files: ^(hooks/|tests/)
