@@ -1,6 +1,6 @@
 """
-Runs in the generated project. 
-Strips local-model files when local_model == 'none' as `.cookiecutter.json` is not a Jinja template 
+Runs in the generated project.
+Strips local-model files when local_model == 'none' as `.cookiecutter.json` is not a Jinja template
 and cannot conditionally remove files.
 """
 
@@ -9,6 +9,7 @@ import shutil
 import sys
 
 LOCAL_MODEL = "{{ cookiecutter.local_model }}"
+
 
 def rm(*parts):
     try:
@@ -22,15 +23,18 @@ def rm(*parts):
     except OSError as e:
         print(f"[post_gen] failed to remove local_model files {path}: {e}", file=sys.stderr)
         sys.exit(1)
-        
+
 
 # Current validation is not needed, but passed for further iteration in the future.
 # if LOCAL_MODEL not in VALID:
 #     fail(f"unexpected local_model={LOCAL_MODEL!r}; expected one of {sorted(VALID)}")
 
-if LOCAL_MODEL == "none":
-    # No local server: drop the terminal helper and the editor client for it.
-    rm("scripts", "ask.sh")
-    rm(".continue")
+
+def run(local_model: str) -> None:
+    if local_model == "none":
+        # No local server: drop the terminal helper and the editor client for it.
+        rm("scripts", "ask.sh")
+        rm(".continue")
+
 
 print(f"[post_gen] local_model={LOCAL_MODEL}")

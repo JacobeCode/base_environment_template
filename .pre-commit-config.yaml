@@ -43,16 +43,16 @@ repos:
 
   - repo: local
     hooks:
-      - id: pytest-template-hooks
+      - id: pytest-template
         name: pytest (template render + hooks testing + total coverage)
-        entry: uv run pytest tests/   # --cov=hooks / fail_under come from pyproject
+        entry: uv run pytest   # --cov=hooks / fail_under come from pyproject
         stages: [pre-commit, manual]
         language: system
         pass_filenames: false
-        files: ^(hooks/|tests/|cookiecutter\.json)
+        files: ^(src/|hooks/|test/|cookiecutter\.json)
       - id: coverage-threshold
-        name: per-file coverage floor (hooks)
+        name: per-file coverage floor
         entry: bash -c "uv run coverage json -q && uv run coverage-threshold"
         language: system
         pass_filenames: false
-        files: ^(hooks/|tests/)
+        files: ^(src/|hooks/|tests/)

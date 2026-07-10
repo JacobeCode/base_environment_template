@@ -16,14 +16,17 @@ dependencies = [
     "pytest-cov>=5",
     "ruff>=0.15.16",
     "pre-commit>=4.1.0",
+    "coverage-threshold>=0.6.2",
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "--cov=hooks --cov-report=term-missing"
+testpaths = ["src/test"]
+pythonpath = ["src"]
+python_files = ["test_*.py"]
+addopts = "--cov=src/template_hooks --cov-report=term-missing"
 
 [tool.coverage.run]
-source = ["hooks"]
+source = ["src/template_hooks"]
 branch = true
 omit = []   # for further adjustments
 
