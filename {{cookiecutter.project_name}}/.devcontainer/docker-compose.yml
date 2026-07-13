@@ -1,0 +1,13 @@
+services:
+  dev:
+    image: mcr.microsoft.com/devcontainers/base:debian-12
+    volumes:
+      - ../..:/workspaces:cached
+      - claude-config:/home/vscode/.claude
+    command: sleep infinity
+{%- if cookiecutter.local_model != "none" %}
+  depends_on:
+    - ollama
+  environment:
+    OLLAMA_HOST: "http://ollama:11434"
+{%- endif %}
