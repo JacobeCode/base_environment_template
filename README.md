@@ -6,3 +6,4 @@ TODO:
 2. Added brew and through `brew` uv
 3. uv sync and deploy instructions
 4. proper cookiecutter install for project deployment
+5. Proper setup for VSCode (autosave etc.)
