@@ -13,10 +13,10 @@ services:
       SKILLSPECTOR_PROVIDER: "openai"
       SKILLSPECTOR_MODEL: "{{ cookiecutter.local_model }}"
       # OpenAI is not used for local model, but we need to set the base URL and API key to avoid errors and use format of OpenAI provider as standard
-      OPENAI_BASE_URL: "http://ollama:11434/v1"
+      OPENAI_BASE_URL: "ollama:11434/v1"
       OPENAI_API_KEY: "not-needed"
       # for terminal use of the model via CLI
-      OLLAMA_HOST: "http://ollama:11434"
+      OLLAMA_HOST: "ollama:11434"
 {%- endif %}
 {%- if cookiecutter.gpu_training == 'yes' %}
     # GPU for PyTorch/CUDA training (dev container only; local model stays on CPU)
@@ -54,7 +54,7 @@ services:
     depends_on: 
       - ollama
     environment:
-      OLLAMA_HOST: "http://ollama:11434" 
+      OLLAMA_HOST: "ollama:11434" 
     entrypoint: ["/bin/sh", "-c", "ollama pull {{cookiecutter.local_model}}"]
     restart: "no"
 {%- endif %}
