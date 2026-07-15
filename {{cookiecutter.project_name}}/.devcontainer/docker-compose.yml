@@ -6,8 +6,70 @@ services:
       - claude-config:/home/vscode/.claude
     command: sleep infinity
 {%- if cookiecutter.local_model != "none" %}
-  depends_on:
-    - ollama
-  environment:
-    OLLAMA_HOST: "http://ollama:11434"
+    depends_on:
+      - ollama
+    environment:
+      # local model for coding tasks and SkillSpector
+      SKILLSPECTOR_PROVIDER: "openai"
+      SKILLSPECTOR_MODEL: "{{ cookiecutter.local_model }}"
+      # OpenAI is not used for local model, but we need to set the base URL and API key to avoid errors and use format of OpenAI provider as standard
+      OPENAI_BASE_URL: "http://ollama:11434/v1"
+      OPENAI_API_KEY: "not-needed"
+      # for terminal use of the model via CLI
+      OLLAMA_HOST: "http://ollama:11434"
+{%- endif %}
+{%- if cookiecutter.gpu_training == 'yes' %}
+  # GPU for PyTorch/CUDA training (dev container only; local model stays on CPU)
+  # Requires the NVIDIA Container Toolkit on the host.
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - {
+              driver: nvidia
+              count: all
+              capabilities: [gpu]
+            }
+{%- endif %}
+{%- if cookiecutter.local_model != "none" %}
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      # persist the model data so it is not lost when the container is removed
+      - ollama-models:/root/.ollama
+    environment:
+      # WARM BY DEFAULT - this holds ~9 GB of SYSTEM RAM while warm (not VRAM; training owns the GPU).
+      - OLLAMA_KEEP_ALIVE: "-1"
+    deploy:
+      resources:
+        limits:
+          # scan / query limit for 4 cores - budget load
+          # (throttles throughput; doesn't limit processes/threads)
+          cpus: "4.0"
+          # calculated per model + kv cache + overhead
+          memory:
+            {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}
+              7g
+            {% elif cookiecutter.local_model == "qwen2.5-coder:14b" %}
+              15g
+            {% else %}
+              12g
+            {% endif %}
+  # pulls model into the volume and persists
+  model-init:
+    image: ollama/ollama:latest
+    depends_on: 
+      - [ollama]
+    environment:
+      OLLAMA_HOST: "ollama:11434" 
+    entrypoint: ["/bin/sh", "-c", "ollama pull {{cookiecutter.local_model}}"]
+    restart: "no"
+{%- endif %}
+
+volumes:
+  ollama-models:
+{% if cookiecutter.local_model != "none" %}
+  claude-config:
 {%- endif %}
