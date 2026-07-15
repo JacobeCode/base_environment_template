@@ -18,9 +18,10 @@ wheels = [
 [[package]]
 name = "base-env-project"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "black" },
+    { name = "cookiecutter" },
     { name = "coverage-threshold" },
     { name = "isort" },
     { name = "pre-commit" },
@@ -35,6 +36,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "black", specifier = ">=26.5.1" },
+    { name = "cookiecutter", specifier = ">=2.7.1" },
     { name = "coverage-threshold", specifier = ">=0.6.2" },
     { name = "isort", specifier = ">=8.0.1" },
     { name = "pre-commit", specifier = ">=4.1.0" },
