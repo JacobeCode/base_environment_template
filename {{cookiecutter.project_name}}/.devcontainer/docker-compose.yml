@@ -39,7 +39,7 @@ services:
       - ollama-models:/root/.ollama
     environment:
       # WARM BY DEFAULT - this holds ~9 GB of SYSTEM RAM while warm (not VRAM; training owns the GPU).
-      OLLAMA_KEEP_ALIVE: -1
+      OLLAMA_KEEP_ALIVE: "-1"
     deploy:
       resources:
         limits:
