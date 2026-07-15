@@ -19,17 +19,15 @@ services:
       OLLAMA_HOST: "http://ollama:11434"
 {%- endif %}
 {%- if cookiecutter.gpu_training == 'yes' %}
-  # GPU for PyTorch/CUDA training (dev container only; local model stays on CPU)
-  # Requires the NVIDIA Container Toolkit on the host.
-  deploy:
-    resources:
-      reservations:
-        devices:
-          - {
-              driver: nvidia
-              count: all
-              capabilities: [gpu]
-            }
+    # GPU for PyTorch/CUDA training (dev container only; local model stays on CPU)
+    # Requires the NVIDIA Container Toolkit on the host.
+    deploy:
+      resources:
+        reservations:
+          devices:
+              - driver: nvidia
+                count: all
+                capabilities: [gpu]
 {%- endif %}
 {%- if cookiecutter.local_model != "none" %}
   ollama:
@@ -41,7 +39,7 @@ services:
       - ollama-models:/root/.ollama
     environment:
       # WARM BY DEFAULT - this holds ~9 GB of SYSTEM RAM while warm (not VRAM; training owns the GPU).
-      - OLLAMA_KEEP_ALIVE: "-1"
+      - OLLAMA_KEEP_ALIVE: -1
     deploy:
       resources:
         limits:
@@ -49,27 +47,20 @@ services:
           # (throttles throughput; doesn't limit processes/threads)
           cpus: "4.0"
           # calculated per model + kv cache + overhead
-          memory:
-            {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}
-              7g
-            {% elif cookiecutter.local_model == "qwen2.5-coder:14b" %}
-              15g
-            {% else %}
-              12g
-            {% endif %}
+          memory: {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}7g{% elif cookiecutter.local_model == "qwen2.5-coder:14b" %}15g{% else %}12g{% endif %}
   # pulls model into the volume and persists
   model-init:
     image: ollama/ollama:latest
     depends_on: 
-      - [ollama]
+      - ollama
     environment:
-      OLLAMA_HOST: "ollama:11434" 
+      OLLAMA_HOST: "http://ollama:11434" 
     entrypoint: ["/bin/sh", "-c", "ollama pull {{cookiecutter.local_model}}"]
     restart: "no"
 {%- endif %}
 
 volumes:
-  ollama-models:
-{% if cookiecutter.local_model != "none" %}
   claude-config:
+{%- if cookiecutter.local_model != "none" %}
+  ollama-models:
 {%- endif %}
