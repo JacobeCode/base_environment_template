@@ -5,3 +5,4 @@ TODO:
 1. Write useful tools and plugins
 2. Added brew and through `brew` uv
 3. uv sync and deploy instructions
+4. proper cookiecutter install for project deployment

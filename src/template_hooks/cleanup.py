@@ -8,8 +8,6 @@ import os
 import shutil
 import sys
 
-LOCAL_MODEL = "{{ cookiecutter.local_model }}"
-
 
 def rm(*parts: str) -> None:
     try:
@@ -35,4 +33,4 @@ def run(local_model: str) -> None:
         # No local server: drop the terminal helper and the editor client for it.
         rm("scripts", "ask.sh")
         rm(".continue")
-    print(f"[post_gen] local_model={LOCAL_MODEL}")
+    print(f"[post_gen] local_model={local_model}")
