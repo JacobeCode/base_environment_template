@@ -6,6 +6,7 @@ default_stages: [pre-commit, pre-merge-commit]
 # The rendered tree is Jinja, not valid Python/YAML/TOML — keep every
 # parsing hook out of it. Individual hooks can still narrow further.
 # If some common scripts are meant to be included edit this out.
+# Global to pass onto hooks below
 exclude: '^\{\{cookiecutter\.project_slug\}\}/'
 
 repos:
@@ -16,9 +17,7 @@ repos:
       - id: check-ast
       - id: fix-byte-order-marker
       - id: check-json
-        exclude: ^(?!.*\.json$).*$
       - id: check-yaml
-        exclude: ^(?!.*\.yaml$).*$
       - id: detect-private-key
       - id: check-case-conflict
       - id: trailing-whitespace
