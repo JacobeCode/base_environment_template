@@ -17,7 +17,7 @@ uv sync
 
 echo "uv sync complete" >> "$POST_CREATE_LOG"
 
-# --- AGENT CODING TOOLS ---  
+# ---------- AGENT CODING TOOLS ----------  
 
 # CodeGraph — local code knowledge graph, exposed to Claude Code over MCP.
 echo "Installing codegraph..." >> "$POST_CREATE_LOG"
@@ -37,5 +37,45 @@ claude plugin install ponytail@ponytail || warn "Failed to install ponytail plug
 # For Max - relives cap rates
 echo "Installing Headroom..." >> "$POST_CREATE_LOG"
 
-pip install --user --break-system-packages headroom-cli || warn "Failed to install headroom-cli"
+# defaulting to uv managment as project is based on uv
+uv tool install headroom-cli || warn "Failed to install headroom-cli"
 headroom mcp install || warn "Failed to install headroom MCP plugin"
+
+# ---------- GPU TRAINING TOOLS ----------
+{%- if cookiecutter.gpu_training == "yes" %}
+uv sync --group train
+echo "==> Verifying CUDA availability in the dev container:"
+
+uv run python - <<'PY' || warn "Failed to run python to check CUDA availability or no CUDA device visible — check NVIDIA Container Toolkit on the host and the compose GPU reservatio"
+
+import torch
+
+print("torch version:", torch.__version__)
+print("CUDA available:", torch.cuda.is_available())
+
+if torch.cuda.is_available():
+    print("CUDA device name:", torch.cuda.get_device_name(torch.cuda.current_device()))
+else:
+    print("WARNING: no CUDA device seen. Check NVIDIA Container Toolkit on the host "
+          "and that gpu_training=yes wired the GPU reservation into docker-compose.yml.")
+PY
+{%- endif %}
+
+# ---------- GIT HOOKS ----------
+
+# .git/hooks/ not tracked, so run per clone to install pre-commit hooks if .pre-commit-config.yaml is present
+if [ -d .git ] && [ -f .pre-commit-config.yaml ]; then
+  uv run pre-commit install --install-hooks || warn "Failed to install pre-commit hooks"
+else
+  warn "No .git directory or .pre-commit-config.yaml found, skipping pre-commit hook installation"
+fi
+
+# --------- LOG REPORTING ----------
+
+echo "Post-create script completed. Log written to $POST_CREATE_LOG"
+if [ -s "$POST_CREATE_LOG" ]; then
+  echo "Warnings/errors during post-create:"
+  cat "$POST_CREATE_LOG"
+else
+  echo "No warnings/errors during post-create."
+fi
