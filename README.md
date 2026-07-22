@@ -1,9 +1,10 @@
 # write README
 # tools for IDE + docker compose IDE tool
 
-TODO: 
+TODO:
 1. Write useful tools and plugins
 2. Added brew and through `brew` uv
 3. uv sync and deploy instructions
 4. proper cookiecutter install for project deployment
 5. Proper setup for VSCode (autosave etc.)
+6. fix logging in post_create.sh

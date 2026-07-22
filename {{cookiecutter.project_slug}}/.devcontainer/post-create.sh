@@ -14,6 +14,12 @@ uv sync
 
 echo "uv sync complete" >> "$POST_CREATE_LOG"
 
+# jq install for ask.sh to parse JSON
+if ! command -v jq >/dev/null; then
+  log "Installing jq"
+  sudo apt-get update -qq && sudo apt-get install -y -qq jq || warn "jq install failed — ask.sh will not work"
+fi
+
 # ---------- AGENT CODING TOOLS ----------  
 
 # CodeGraph — local code knowledge graph, exposed to Claude Code over MCP.
