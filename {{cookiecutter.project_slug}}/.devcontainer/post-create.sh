@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# building log with non-fatal warnings and errors to leave a trace of what happened during post-create (broken tools, missing dependencies, etc.)
-POST_CREATE_LOG="${HOME}/.post-create.log"
-warn() {
-  echo "[post-create] WARNING: $*" | tee -a "$POST_CREATE_LOG" >&2
-}
+# shared logging sourcing - writes to logs/post-create.log (last run save)
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/_logging.sh" post-create
 
 # setting on "strict, fail-fast" -euo pipefail
 echo "Running post-create script..." > "$POST_CREATE_LOG"
@@ -73,9 +70,9 @@ fi
 # --------- LOG REPORTING ----------
 
 echo "Post-create script completed. Log written to $POST_CREATE_LOG"
-if [ -s "$POST_CREATE_LOG" ]; then
-  echo "Warnings/errors during post-create:"
-  cat "$POST_CREATE_LOG"
+if [ "$WARN_COUNT" -gt 0 ]; then
+  err "post-create finished with $WARN_COUNT warning(s) — see $LOG_FILE"
+  grep '\[WARN\]' "$LOG_FILE" || true
 else
-  echo "No warnings/errors during post-create."
+  log "No warnings/errors during post-create. Post-create completed."
 fi
