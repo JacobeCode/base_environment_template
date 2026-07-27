@@ -7,4 +7,6 @@ TODO:
 3. uv sync and deploy instructions
 4. proper cookiecutter install for project deployment
 5. Proper setup for VSCode (autosave etc.)
-6. fix logging in post_create.sh
+6. fix logging in post_create.sh    ✅
+7. check bash scripts with linters
+8. check train specification file
