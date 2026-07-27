@@ -5,14 +5,14 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/_logging.sh" post-create
 
 # setting on "strict, fail-fast" -euo pipefail
-echo "Running post-create script..." > "$POST_CREATE_LOG"
+log "Running post-create script..."
 
 # uv + project dependencies
 curl -LsSf https://astral.sh/uv/install.sh | sh
 . "$HOME/.local/bin/uv"
 uv sync
 
-echo "uv sync complete" >> "$POST_CREATE_LOG"
+log "uv sync complete"
 
 # jq install for ask.sh to parse JSON
 if ! command -v jq >/dev/null; then
@@ -23,7 +23,7 @@ fi
 # ---------- AGENT CODING TOOLS ----------  
 
 # CodeGraph — local code knowledge graph, exposed to Claude Code over MCP.
-echo "Installing codegraph..." >> "$POST_CREATE_LOG"
+log "Installing codegraph..."
 
 npm install -g @colbymchenry/codegraph
 codegraph install --yes || warn "codegraph install failed - MCP server not available"
@@ -31,14 +31,14 @@ codegraph init || warn "codegraph init failed - index not built"
 
 # Ponytail (Claude Code plugin marketplace) — "write the least code" skill.
 # Install automation v.s. UI install
-echo "Installing Claude plugin..." >> "$POST_CREATE_LOG"
+log "Installing Claude plugin..."
 
 claude plugin marketplace add DietrichGerbert/ponytail || warn "Failed to add ponytail plugin to marketplace"
 claude plugin install ponytail@ponytail || warn "Failed to install ponytail plugin"
 
 # 3. Headroom (pip) — input-token compression MCP (open-source CLI, Apache 2.0).
 # For Max - relives cap rates
-echo "Installing Headroom..." >> "$POST_CREATE_LOG"
+log "Installing Headroom..."
 
 # defaulting to uv managment as project is based on uv
 uv tool install headroom-cli || warn "Failed to install headroom-cli"
@@ -47,7 +47,7 @@ headroom mcp install || warn "Failed to install headroom MCP plugin"
 # ---------- GPU TRAINING TOOLS ----------
 {%- if cookiecutter.gpu_training == "yes" %}
 uv sync --group train
-echo "==> Verifying CUDA availability in the dev container:"
+log "==> Verifying CUDA availability in the dev container:"
 
 uv run python - <<'PY' || warn "Failed to run python to check CUDA availability or no CUDA device visible — check NVIDIA Container Toolkit on the host and the compose GPU reservatio"
 
@@ -75,7 +75,7 @@ fi
 
 # --------- LOG REPORTING ----------
 
-echo "Post-create script completed. Log written to $POST_CREATE_LOG"
+log "Post-create script completed. Log written to $LOG_FILE"
 if [ "$WARN_COUNT" -gt 0 ]; then
   err "post-create finished with $WARN_COUNT warning(s) — see $LOG_FILE"
   grep '\[WARN\]' "$LOG_FILE" || true
