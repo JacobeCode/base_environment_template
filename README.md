@@ -10,3 +10,5 @@ TODO:
 6. fix logging in post_create.sh    ✅
 7. check bash scripts with linters
 8. check train specification file
+9. check .continue configuaration
+10. try to do `chat.sh` where it will be more simualated chat or heavier load with official CLI to provide memory

@@ -44,6 +44,13 @@ log "Installing Headroom..."
 uv tool install headroom-cli || warn "Failed to install headroom-cli"
 headroom mcp install || warn "Failed to install headroom MCP plugin"
 
+# ---------- CONTINUE CLI ----------
+
+# CLI Continue for local model for capabilities similar to e.g. Claude
+{%- if cookiecutter.local_model != "none" %}
+npm install -g @continuedev/cli || warn "Continue CLI install failed"
+{%- endif %}
+
 # ---------- GPU TRAINING TOOLS ----------
 {%- if cookiecutter.gpu_training == "yes" %}
 uv sync --group train
