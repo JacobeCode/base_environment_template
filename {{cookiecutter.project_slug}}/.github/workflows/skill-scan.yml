@@ -1,0 +1,16 @@
+name: skill security scan
+on:
+  push: { paths: ['skills/**', '**/*.md'] }
+  pull_request:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions: { security-events: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv tool install git+https://github.com/NVIDIA/skillspector.git
+      - run: skillspector scan ./skills/ --no-llm --format sarif --output results.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: results.sarif }
+        
