@@ -1,5 +1,5 @@
 def main():
-    print("Hello from llm-arch-insight!")
+    print("Hello from template project!")
 
 
 if __name__ == "__main__":
