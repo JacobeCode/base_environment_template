@@ -1,6 +1,7 @@
 {
   "project_name": "Base Environment Template",
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+  "project_description": "A short one-line description of what this project does.",
   "author": "jacobecode",
   "python_version": "3.12",
   "local_model": [

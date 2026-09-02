@@ -3,11 +3,55 @@ services:
     image: mcr.microsoft.com/devcontainers/base:debian-12
     volumes:
       - ../..:/workspaces:cached
-      - claude-config:/home/vscode/.claude
+      - claude-config:/home/vscode/.claude       # Docker-managed; NOT a host path
     command: sleep infinity
 {%- if cookiecutter.local_model != "none" %}
-  depends_on:
-    - ollama
-  environment:
-    OLLAMA_HOST: "http://ollama:11434"
+    depends_on:
+      - ollama
+    environment:
+      # SkillSpector -> local model (service name resolves on the compose network)
+      SKILLSPECTOR_PROVIDER: "openai"
+      SKILLSPECTOR_MODEL: "{{cookiecutter.local_model}}"
+      OPENAI_BASE_URL: "http://ollama:11434/v1"
+      OPENAI_API_KEY: "not-needed"
+      # For terminal use of the model via the ollama CLI, if installed
+      OLLAMA_HOST: "ollama:11434"{%- endif %}
+{%- if cookiecutter.gpu_training == "yes" %}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - { driver: nvidia, count: all, capabilities: [gpu]}
 {%- endif %}
+{%- if cookiecutter.local_model != "none" %}
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama          # persist the model across rebuilds
+    environment:
+     OLLAMA_KEEP_ALIVE: "-1"
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"                          
+          memory: {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}7g{% elif cookiecutter.local_model == "deepseek-coder-v2:16b" %}15g{% else %}12g{% endif %}
+
+  # One-shot: pulls the model into the volume, then exits. Indempotent on rebuilds.
+  model-init:
+    image: ollama/ollama
+    depends_on: [ollama]
+    environment:
+      OLLAMA_HOST: "ollama:11434"
+    entrypoint: [
+    "/bin/sh",
+    "-c",
+    "ollama pull {{cookiecutter.local_model}}"
+    ]
+    restart: "no"{%- endif %}
+
+volumes:
+  claude-config: {%- if cookiecutter.local_model != "none" %}
+  ollama-models: {%- endif %}
