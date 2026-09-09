@@ -222,3 +222,6 @@ __marimo__/
 
 # Cookiecutter render output (if you bake into the repo while testing)
 /output/
+
+# coverage files
+coverage.json
