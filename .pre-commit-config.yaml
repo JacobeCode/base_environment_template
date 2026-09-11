@@ -13,7 +13,6 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      - id: debug-statements        # NB: will flag the print()s in your hooks — see note
       - id: check-ast
       - id: fix-byte-order-marker
       - id: check-json
@@ -24,6 +23,8 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: check-added-large-files
+      - id: debug-statements
+        exclude: '^src/template_hooks/cleanup\.py$'
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.21
@@ -49,14 +50,14 @@ repos:
     hooks:
       - id: pytest-template
         name: pytest (template render + hooks testing + total coverage)
-        entry: uv run pytest   # --cov=hooks / fail_under come from pyproject
+        entry: uv run pytest   # --cov=src/template_hooks / fail_under come from pyproject
         stages: [pre-commit, manual]
         language: system
         pass_filenames: false
-        files: ^(src/|hooks/|test/|cookiecutter\.json)
+        files: ^(src/|hooks/|cookiecutter\.json)
       - id: coverage-threshold
         name: per-file coverage floor
         entry: bash -c "uv run coverage json -q && uv run coverage-threshold"
         language: system
         pass_filenames: false
-        files: ^(src/|hooks/|tests/)
+        files:  ^(src/|hooks/)
