@@ -16,8 +16,8 @@ jobs:
       - name: Render
         run: |
           cookiecutter . --no-input \
-            local_model="${{ '{{ matrix.local_model }}' }}" \
-            gpu_training="${{ '{{ matrix.gpu_training }}' }}" -o /tmp/out
+            local_model="${{ matrix.local_model }}" \
+            gpu_training="${{ matrix.gpu_training }}" -o /tmp/out
       - name: Validate the RENDERED output
         run: |
           cd /tmp/out/*
