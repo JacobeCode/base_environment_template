@@ -13,6 +13,8 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv tool install cookiecutter
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Install package in dev mode
+        run: pip install -e .
       - name: Render
         run: |
           cookiecutter . --no-input \
