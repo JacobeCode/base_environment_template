@@ -15,13 +15,14 @@ services:
       OPENAI_BASE_URL: "http://ollama:11434/v1"
       OPENAI_API_KEY: "not-needed"
       # For terminal use of the model via the ollama CLI, if installed
-      OLLAMA_HOST: "ollama:11434"{%- endif %}
+      OLLAMA_HOST: "ollama:11434"
+{%- endif %}
 {%- if cookiecutter.gpu_training == "yes" %}
     deploy:
       resources:
         reservations:
           devices:
-            - { driver: nvidia, count: all, capabilities: [gpu]}
+            - { driver: nvidia, count: all, capabilities: [gpu] }
 {%- endif %}
 {%- if cookiecutter.local_model != "none" %}
 
@@ -45,13 +46,12 @@ services:
     depends_on: [ollama]
     environment:
       OLLAMA_HOST: "ollama:11434"
-    entrypoint: [
-    "/bin/sh",
-    "-c",
-    "ollama pull {{cookiecutter.local_model}}"
-    ]
-    restart: "no"{%- endif %}
+    entrypoint: ["/bin/sh", "-c", "ollama pull {{cookiecutter.local_model}}"]
+    restart: "no"
+{%- endif %}
 
 volumes:
-  claude-config: {%- if cookiecutter.local_model != "none" %}
-  ollama-models: {%- endif %}
+  claude-config: 
+{%- if cookiecutter.local_model != "none" %}
+  ollama-models: 
+{%- endif %}
