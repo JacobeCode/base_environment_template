@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        local_model: ["qwen2.5-coder:14b", "none"]
-        gpu_training: ["yes", "no"]
+        local_model: ['qwen2.5-coder:14b', 'none']
+        gpu_training: ['yes', 'no']
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
