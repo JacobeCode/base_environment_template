@@ -23,16 +23,12 @@ dev = [
 testpaths = ["src/test"]
 pythonpath = ["src"]
 python_files = ["test_*.py"]
-addopts = "--cov=src/template_hooks --cov-report=term-missing"
+addopts = "--cov=hooks --cov-report=term-missing"
 
 [tool.coverage.run]
-source = ["src/template_hooks"]
+source = ["hooks"]
 branch = true
 omit = []   # for further adjustments
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tool.coverage.report]
 fail_under = 70
@@ -52,6 +48,3 @@ extend-exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/template_hooks"]

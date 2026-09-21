@@ -44,5 +44,4 @@ def main(local_model: str) -> None:
 
 
 if __name__ == "__main__":
-  main(" {{ cookiecutter.local_model }} ")
-  
+  main("{{ cookiecutter.local_model }}")

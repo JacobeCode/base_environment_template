@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 
-HOOK_PATH = Path(__file__).resolve().parent[3] / "hooks" / "post_gen_project.py"
+HOOK_PATH = Path(__file__).resolve().parents[3] / "hooks" / "post_gen_project.py"
 _spec = importlib.util.spec_from_file_location("post_gen_project", HOOK_PATH)
 
 # name != __main__ (nothing executes)

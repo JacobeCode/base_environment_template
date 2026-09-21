@@ -18,7 +18,7 @@ wheels = [
 [[package]]
 name = "base-env-project"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
