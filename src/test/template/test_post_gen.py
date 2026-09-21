@@ -1,9 +1,20 @@
+"""
+As an exception the tests for the post_gen_project.py hook are executed on specially imported file, not module.
+"""
 import os
 from unittest.mock import Mock
+import importlib.util
+from pathlib import Path
 
 import pytest
 
-from template_hooks.cleanup import rm, run
+
+HOOK_PATH = Path(__file__).resolve().parent[3] / "hooks" / "post_gen_project.py"
+_spec = importlib.util.spec_from_file_location("post_gen_project", HOOK_PATH)
+
+# name != __main__ (nothing executes)
+post_gen = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(post_gen)
 
 
 def _touch(path):
@@ -16,7 +27,7 @@ def test_none_strips_local_files(tmp_path, monkeypatch):
     _touch("scripts/ask.sh")
     _touch("scripts/chat.sh")
     os.makedirs(".continue")
-    run("none")
+    post_gen.main("none")
     assert not os.path.exists("scripts/ask.sh")
     assert not os.path.exists("scripts/chat.sh")
     assert not os.path.exists(".continue")
@@ -27,7 +38,7 @@ def test_model_keeps_local_files(tmp_path, monkeypatch):
     _touch("scripts/ask.sh")
     _touch("scripts/chat.sh")
     os.makedirs(".continue")
-    run("qwen2.5-coder:14b")
+    post_gen.main("qwen2.5-coder:14b")
     assert os.path.exists("scripts/ask.sh")
     assert os.path.exists("scripts/chat.sh")
     assert os.path.exists(".continue")
@@ -40,6 +51,6 @@ def test_rm_failure_exits_nonzero(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(os, "remove", Mock(side_effect=OSError("failure")))
 
     with pytest.raises(SystemExit) as exc_info:
-        rm("scripts", "ask.sh")
+        post_gen.rm("scripts", "ask.sh")
     assert exc_info.value.code == 1
     assert "failed to remove" in capsys.readouterr().err
