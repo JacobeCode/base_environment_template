@@ -61,3 +61,9 @@ repos:
         language: system
         pass_filenames: false
         files:  ^(src/|hooks/)
+      - id: lint-rendered-output
+        name: render (defaults) + check (ruff, shellcheck, etc.) - catches bugs invisible in raw-source linting
+        entry: bash tools/check-render.sh
+        language: system
+        pass_filenames: false
+        files: '^\{\{cookiecutter\.project_slug\}\}/.*\.(py|toml|sh)$'
