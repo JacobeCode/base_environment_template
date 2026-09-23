@@ -9,6 +9,7 @@ from unittest.mock import Mock
 
 import pytest
 
+# hook path is relative to the test file, not the project root
 HOOK_PATH = Path(__file__).resolve().parents[3] / "hooks" / "post_gen_project.py"
 _spec = importlib.util.spec_from_file_location("post_gen_project", HOOK_PATH)
 

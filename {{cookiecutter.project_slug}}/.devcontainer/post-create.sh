@@ -7,6 +7,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/logging.sh" pos
 # setting on "strict, fail-fast" -euo pipefail
 log "Running post-create script..."
 
+# ---------- UV ----------
+
+log "Installing uv and syncing project dependencies..."
+
 # uv + project dependencies
 curl -LsSf https://astral.sh/uv/install.sh | sh
 # shellcheck disable=SC1091
@@ -15,13 +19,23 @@ uv sync
 
 log "uv sync complete"
 
+# ---------- JQ ----------
+
 # jq install for ask.sh to parse JSON
 if ! command -v jq >/dev/null; then
   log "Installing jq"
-  if ! sudo apt-get update -qq && sudo apt-get install -y -qq jq; then
-    warn "jq install failed — ask.sh will not work"
-  fi
+  (sudo apt-get update -qq && sudo apt-get install -y -qq jq) || warn "jq install failed — ask.sh will not work"
 fi
+
+
+# ---------- JUST ----------
+
+if ! command -v just >/dev/null; then
+  log "Installing just"
+  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$HOME/.local/bin" \
+        || warn "just install failed — use the scripts/*.sh files directly instead of just <recipe>"
+fi
+
 
 # ---------- AGENT CODING TOOLS ----------
 
@@ -70,7 +84,7 @@ if torch.cuda.is_available():
     print("CUDA device name:", torch.cuda.get_device_name(torch.cuda.current_device()))
 else:
     print("WARNING: no CUDA device seen. Check NVIDIA Container Toolkit on the host "
-          "and that gpu_training=yes wired the GPU reservation into docker-compose.yml.")
+    "and that gpu_training=yes wired the GPU reservation into docker-compose.yml.")
 PY
 {%- endif %}
 
