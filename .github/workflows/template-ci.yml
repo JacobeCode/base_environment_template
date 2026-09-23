@@ -6,18 +6,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        local_model: ["qwen2.5-coder:14b", "none"]
-        gpu_training: ["yes", "no"]
+        local_model: ['qwen2.5-coder:14b', 'none']
+        gpu_training: ['yes', 'no']
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv tool install cookiecutter
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Install package in dev mode
+        run: pip install -e .
       - name: Render
         run: |
           cookiecutter . --no-input \
-            local_model="${{ '{{ matrix.local_model }}' }}" \
-            gpu_training="${{ '{{ matrix.gpu_training }}' }}" -o /tmp/out
+            local_model="${{ matrix.local_model }}" \
+            gpu_training="${{ matrix.gpu_training }}" -o /tmp/out
       - name: Validate the RENDERED output
         run: |
           cd /tmp/out/*

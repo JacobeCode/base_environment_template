@@ -96,7 +96,7 @@ This is not `fail_fast` — a single commit attempt reports every failing hook, 
 ├── tests/
 │   └── test_smoke.py
 ├── scripts/
-│   ├── _logging.sh             # shared log/warn/err
+│   ├── logging.sh             # shared log/warn/err
 │   ├── scan.sh
 {%- if cookiecutter.local_model != "none" %}
 │   ├── ask.sh

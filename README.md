@@ -12,3 +12,4 @@ TODO:
 8. check train specification file
 9. check .continue configuaration
 10. try to do `chat.sh` where it will be more simualated chat or heavier load with official CLI to provide memory
+11. Add test for rm post_gen for whole directory
