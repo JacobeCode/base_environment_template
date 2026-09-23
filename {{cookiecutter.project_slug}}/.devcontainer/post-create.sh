@@ -14,7 +14,7 @@ log "Installing uv and syncing project dependencies..."
 # uv + project dependencies
 curl -LsSf https://astral.sh/uv/install.sh | sh
 # shellcheck disable=SC1091
-. "$HOME/.local/bin/uv"
+. "$HOME/.local/bin/env"
 uv sync
 
 log "uv sync complete"
