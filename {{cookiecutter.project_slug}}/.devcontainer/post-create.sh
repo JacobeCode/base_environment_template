@@ -2,13 +2,14 @@
 set -euo pipefail
 
 # shared logging sourcing - writes to logs/post-create.log (last run save)
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/_logging.sh" post-create
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/logging.sh" post-create
 
 # setting on "strict, fail-fast" -euo pipefail
 log "Running post-create script..."
 
 # uv + project dependencies
 curl -LsSf https://astral.sh/uv/install.sh | sh
+# shellcheck disable=SC1091
 . "$HOME/.local/bin/uv"
 uv sync
 
@@ -17,17 +18,19 @@ log "uv sync complete"
 # jq install for ask.sh to parse JSON
 if ! command -v jq >/dev/null; then
   log "Installing jq"
-  sudo apt-get update -qq && sudo apt-get install -y -qq jq || warn "jq install failed — ask.sh will not work"
+  if ! sudo apt-get update -qq && sudo apt-get install -y -qq jq; then
+    warn "jq install failed — ask.sh will not work"
+  fi
 fi
 
-# ---------- AGENT CODING TOOLS ----------  
+# ---------- AGENT CODING TOOLS ----------
 
 # CodeGraph — local code knowledge graph, exposed to Claude Code over MCP.
 log "Installing codegraph..."
 
 npm install -g @colbymchenry/codegraph
 codegraph install --yes || warn "codegraph install failed - MCP server not available"
-codegraph init || warn "codegraph init failed - index not built" 
+codegraph init || warn "codegraph init failed - index not built"
 
 # Ponytail (Claude Code plugin marketplace) — "write the least code" skill.
 # Install automation v.s. UI install

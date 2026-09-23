@@ -1,13 +1,13 @@
 """
 As an exception the tests for the post_gen_project.py hook are executed on specially imported file, not module.
 """
-import os
-from unittest.mock import Mock
+
 import importlib.util
+import os
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
-
 
 HOOK_PATH = Path(__file__).resolve().parents[3] / "hooks" / "post_gen_project.py"
 _spec = importlib.util.spec_from_file_location("post_gen_project", HOOK_PATH)

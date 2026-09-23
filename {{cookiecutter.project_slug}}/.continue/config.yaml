@@ -11,4 +11,3 @@ models:
         - chat
         - edit
         - autocomplete
-        

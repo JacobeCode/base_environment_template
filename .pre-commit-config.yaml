@@ -6,25 +6,33 @@ default_stages: [pre-commit, pre-merge-commit]
 # The rendered tree is Jinja, not valid Python/YAML/TOML — keep every
 # parsing hook out of it. Individual hooks can still narrow further.
 # If some common scripts are meant to be included edit this out.
-# Global to pass onto hooks below
-exclude: '^\{\{cookiecutter\.project_slug\}\}/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: check-ast
+        exclude: &tree '^\{\{cookiecutter\.project_slug\}\}/'
       - id: fix-byte-order-marker
+        exclude: *tree
       - id: check-json
+        exclude: *tree
       - id: check-yaml
+        exclude: *tree
       - id: detect-private-key
+        exclude: *tree
       - id: check-case-conflict
+        exclude: *tree
       - id: trailing-whitespace
+        exclude: *tree
       - id: end-of-file-fixer
+        exclude: *tree
       - id: mixed-line-ending
+        exclude: *tree
       - id: check-added-large-files
+        exclude: *tree
       - id: debug-statements
-        exclude: '^src/template_hooks/cleanup\.py$'
+        exclude: '(^|/)\{\{cookiecutter\.project_slug\}\}/|^hooks/post_gen_project\.py$'
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.21
@@ -32,8 +40,10 @@ repos:
       - id: ruff-check
         types_or: [python, pyi]
         args: [--fix]
+        exclude: *tree
       - id: ruff-format
         types_or: [python, pyi]
+        exclude: *tree
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.9.6          # match/pin to your uv version
@@ -44,6 +54,8 @@ repos:
     rev: v0.11.0.1
     hooks:
       - id: shellcheck
+        args: ['-x']
+        exclude: *tree
 
 
   - repo: local

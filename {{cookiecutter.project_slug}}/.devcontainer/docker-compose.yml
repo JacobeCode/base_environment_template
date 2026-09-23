@@ -37,7 +37,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "4.0"                          
+          cpus: "4.0"
           memory: {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}7g{% elif cookiecutter.local_model == "deepseek-coder-v2:16b" %}15g{% else %}12g{% endif %}
 
   # One-shot: pulls the model into the volume, then exits. Indempotent on rebuilds.
@@ -51,7 +51,7 @@ services:
 {%- endif %}
 
 volumes:
-  claude-config: 
+  claude-config:
 {%- if cookiecutter.local_model != "none" %}
-  ollama-models: 
+  ollama-models:
 {%- endif %}

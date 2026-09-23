@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     {%- if cookiecutter.local_model != "none" %}
     - `ollama` (local model, CPU-served),
     - `model-init` (one-shot model pull)
-    {%- endif %}. 
+    {%- endif %}.
 
 Open in VS Code → "Reopen in Container."
 
@@ -22,9 +22,9 @@ Open in VS Code → "Reopen in Container."
 
 {%- if cookiecutter.gpu_training == "yes" %}
 - GPU training: the `dev` service has GPU passthrough
-{%- if cookiecutter.local_model != "none" %}; 
+{%- if cookiecutter.local_model != "none" %};
 - `ollama` is CPU-only by design — no VRAM contention
-{%- endif %}. 
+{%- endif %}.
 Verify with `just gpu`.
 {%- endif %}
 
@@ -45,14 +45,14 @@ Verify with `just gpu`.
 
 - `src/{{ cookiecutter.project_slug }}/` — the package.
 - `tests/` — test suite.
-- `scripts/` 
+- `scripts/`
     - `scan.sh` (SkillSpector)
-    {%- if cookiecutter.local_model != "none" %}, 
+    {%- if cookiecutter.local_model != "none" %},
     - `ask.sh`/`chat.sh` (local model)
     {%- endif %}
     {%- if cookiecutter.gpu_training == "yes" %}
     - `train.sh` (GPU coexistence){%- endif %}
-    - `_logging.sh` (shared log/warn/err, sourced by the others).
+    - `logging.sh` (shared log/warn/err, sourced by the others).
 - `skills/` — third-party agent skills. **Every skill here is scanned by SkillSpector before use** — see Security below.
 - `logs/` — per-script run logs. Gitignored; truncated at the start of each run, so only the most recent run is kept.
 {%- if cookiecutter.local_model != "none" %}

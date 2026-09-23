@@ -9,6 +9,5 @@ jobs:
       - run: uv sync
       - run: uv run ruff check .
       - run: uv run pytest
-      - run: uv run coverage json -q         
+      - run: uv run coverage json -q
       - run: uv run coverage-threshold
-              

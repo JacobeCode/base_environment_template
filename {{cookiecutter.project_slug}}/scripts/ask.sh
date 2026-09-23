@@ -5,9 +5,9 @@ OLLAMA="${OLLAMA_HOST_URL:-http://ollama:11434}"
 PROMPT="$*"
 
 # shared logging sourcing - writes to logs/ask.log (last run save)
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/_logging.sh" ask
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/logging.sh" ask
 
-if [ -z "$PROMPT"]; then
+if [ -z "$PROMPT" ]; then
     echo "usage: ./scripts/ask.sh <your question>" >&2
     exit 1
 fi

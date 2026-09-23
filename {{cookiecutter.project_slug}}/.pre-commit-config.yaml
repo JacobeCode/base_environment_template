@@ -32,7 +32,7 @@ repos:
     - repo: local
       hooks:
         - id: skillspector-static
-          name: 
+          name:
           entry: skillspector scan ./skills/ --no-llm --format terminal
           language: system
           pass_filenames: false
@@ -49,4 +49,3 @@ repos:
           language: system
           pass_filenames: false
           files: ^(src/|tests/)
-          
