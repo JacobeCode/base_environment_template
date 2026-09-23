@@ -33,5 +33,6 @@ if [ -z "$answer" ]; then
     log "  docker compose -f .devcontainer/docker-compose.yml exec ollama ollama list" >&2
     exit 1
 fi
+
 echo "$answer"
 log "answered ($(printf '%s' "$answer" | wc -c) chars)"

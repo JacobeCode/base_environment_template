@@ -29,8 +29,19 @@ repos:
         - id: ruff-format
           types_or: [python, pyi]
 
+    - repo: https://github.com/astral-sh/uv-pre-commit
+      rev: 0.9.6
+      hooks:
+        - id: uv-lock
+
     - repo: local
       hooks:
+        - id: blacken-docs
+          name: blacken-docs
+          description: "Run black on Python code blocks in this project's docs"
+          entry: uv run --with blacken-docs==1.20.0 --with black==26.5.1 blacken-docs
+          language: system
+          types_or: [markdown]
         - id: skillspector-static
           name:
           entry: skillspector scan ./skills/ --no-llm --format terminal
