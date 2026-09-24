@@ -7,7 +7,10 @@ services:
     command: sleep infinity
 {%- if cookiecutter.local_model != "none" %}
     depends_on:
-      - ollama
+      ollama:
+        condition: service_started
+      model-init:
+        condition: service_completed_successfully
     environment:
       # SkillSpector -> local model (service name resolves on the compose network)
       SKILLSPECTOR_PROVIDER: "openai"
