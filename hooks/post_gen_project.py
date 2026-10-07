@@ -39,6 +39,7 @@ def main(local_model: str) -> None:
         # local-model blocks with Jinja; only whole standalone files are removed here.
         rm("scripts", "ask.sh")
         rm("scripts", "chat.sh")
+        rm("scripts", "model.sh")
         rm(".continue")
     print(f"[post_gen] local_model={local_model}")
 
