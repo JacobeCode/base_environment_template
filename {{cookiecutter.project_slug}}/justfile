@@ -19,7 +19,7 @@ lint target="./src/":
     uv run ruff check --fix {{ "{{target}}" }}
     uv run ruff format {{ "{{target}}" }}
 
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 
 # Verify CUDA is visible to PyTorch in the container
 gpu:

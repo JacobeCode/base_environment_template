@@ -69,7 +69,7 @@ npm install -g @continuedev/cli || warn "Continue CLI install failed"
 {%- endif %}
 
 # ---------- GPU TRAINING TOOLS ----------
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 uv sync --group train
 log "==> Verifying CUDA availability in the dev container:"
 
@@ -84,7 +84,7 @@ if torch.cuda.is_available():
     print("CUDA device name:", torch.cuda.get_device_name(torch.cuda.current_device()))
 else:
     print("WARNING: no CUDA device seen. Check NVIDIA Container Toolkit on the host "
-    "and that gpu_training=yes wired the GPU reservation into docker-compose.yml.")
+    "and that gpu_usage=yes wired the GPU reservation into docker-compose.yml.")
 PY
 {%- endif %}
 

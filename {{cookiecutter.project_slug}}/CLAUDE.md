@@ -20,7 +20,7 @@ Open in VS Code → "Reopen in Container."
 - Python >={{ cookiecutter.python_version }} (managed via `uv`, see `uv.lock` and `pyproject.toml`)
 - Install dependencies: `uv sync` (also runs automatically via `post-create.sh` on container start)
 
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 - GPU training: the `dev` service has GPU passthrough
 {%- if cookiecutter.local_model != "none" %};
 - `ollama` is CPU-only by design — no VRAM contention
@@ -50,7 +50,7 @@ Verify with `just gpu`.
     {%- if cookiecutter.local_model != "none" %},
     - `ask.sh`/`chat.sh` (local model)
     {%- endif %}
-    {%- if cookiecutter.gpu_training == "yes" %}
+    {%- if cookiecutter.gpu_usage == "yes" %}
     - `train.sh` (GPU coexistence){%- endif %}
     - `logging.sh` (shared log/warn/err, sourced by the others).
 - `skills/` — third-party agent skills. **Every skill here is scanned by SkillSpector before use** — see Security below.
@@ -92,7 +92,7 @@ Configured in `.pre-commit-config.yaml` (runs on `pre-commit` and `pre-merge-com
 {%- if cookiecutter.local_model != "none" %}
 ## Local model
 - Served by the `ollama` service (CPU, warm by default — `OLLAMA_KEEP_ALIVE=-1`) so scans/chat are instant, no cold start.
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 - Only evicted during `just train` (frees system RAM for training's host-side footprint; VRAM is untouched — training and the model never contend for GPU memory).
 {%- endif %}
 {%- endif %}

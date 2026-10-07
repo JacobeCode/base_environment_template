@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         local_model: ['qwen2.5-coder:14b', 'none']
-        gpu_training: ['yes', 'no']
+        gpu_usage: ['yes', 'no']
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -19,7 +19,7 @@ jobs:
         run: |
           cookiecutter . --no-input \
             local_model="${{ matrix.local_model }}" \
-            gpu_training="${{ matrix.gpu_training }}" -o /tmp/out
+            gpu_usage="${{ matrix.gpu_usage }}" -o /tmp/out
       - name: Validate the RENDERED output
         run: |
           cd /tmp/out/*

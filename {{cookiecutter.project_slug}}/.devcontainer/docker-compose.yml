@@ -12,6 +12,8 @@ services:
       model-init:
         condition: service_completed_successfully
     environment:
+      # for login persistence
+      CLAUDE_CONFIG_DIR: "/home/vscode/.claude"
       # SkillSpector -> local model (service name resolves on the compose network)
       SKILLSPECTOR_PROVIDER: "openai"
       SKILLSPECTOR_MODEL: "{{cookiecutter.local_model}}"
@@ -20,7 +22,7 @@ services:
       # For terminal use of the model via the ollama CLI, if installed
       OLLAMA_HOST: "ollama:11434"
 {%- endif %}
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
     deploy:
       resources:
         reservations:
@@ -42,6 +44,17 @@ services:
         limits:
           cpus: "4.0"
           memory: {% if cookiecutter.local_model == "qwen2.5-coder:7b" %}7g{% elif cookiecutter.local_model == "deepseek-coder-v2:16b" %}15g{% else %}12g{% endif %}
+{%- if cookiecutter.gpu_usage == "yes" %}
+          # ── GPU for inference too (gpu_usage=yes means THIS host has an NVIDIA GPU
+          # + Container Toolkit; `dev` gets it for training, `ollama` for the model).
+          # They share the card by hand: `just model-off` before training (§7.8).
+        reservations:
+          devices:
+            - { driver: nvidia, count: all, capabilities: [gpu] }
+{%- else %}
+    # NOTE (gpu_usage=no): ollama runs on CPU. Render with gpu_usage=yes on a
+    # machine with an NVIDIA GPU to put it on the GPU.
+{%- endif %}
 
   # One-shot: pulls the model into the volume, then exits. Indempotent on rebuilds.
   model-init:

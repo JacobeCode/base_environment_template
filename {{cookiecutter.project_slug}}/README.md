@@ -24,7 +24,7 @@ Skeleton only — `src/{{ cookiecutter.project_slug }}/main.py` is the sole sour
 | Package manager | `uv` |
 | Virtual env | `.venv/` |
 | Dev container | Docker Compose (`.devcontainer/`) — services: `dev`{%- if cookiecutter.local_model != "none" %}, `ollama`, `model-init`{%- endif %} |
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 | GPU | passthrough on `dev` (NVIDIA Container Toolkit required on host) |
 {%- endif %}
 
@@ -34,7 +34,7 @@ Skeleton only — `src/{{ cookiecutter.project_slug }}/main.py` is the sole sour
 - `coverage-threshold` — per-file coverage floor
 - `ruff` — linting + formatting (line-length 100, rules `E`/`F`/`I`/`UP`/`B` — replaces black/isort/pycodestyle/pyflakes as separate tools)
 - `pre-commit` — the hooks below, installed automatically on container start
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 - `torch` / `torchvision` — CUDA build, from the `pytorch-cu126` index (verify against `pytorch.org/get-started/locally/`, not PyPI's default CPU build)
 {%- endif %}
 
@@ -58,7 +58,7 @@ just ask <question>                                  # one-shot local-model quer
 {%- else %}
 just scan [target]                                   # SkillSpector (static-only)
 {%- endif %}
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 just train <cmd>                                     # evicts local model, runs cmd, reloads after
 just gpu                                              # verify CUDA is visible
 {%- endif %}
@@ -102,7 +102,7 @@ This is not `fail_fast` — a single commit attempt reports every failing hook, 
 │   ├── ask.sh
 │   ├── chat.sh
 {%- endif %}
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 │   └── train.sh
 {%- endif %}
 ├── logs/                       # gitignored, truncated per run

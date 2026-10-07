@@ -41,7 +41,7 @@ def test_local_model_file_stripping(cookies, model):
 
 @pytest.mark.parametrize("gpu", ["yes", "no"])
 def test_gpu_block_preparation(cookies, gpu):
-    result = cookies.bake(extra_context={"gpu_training": gpu})
+    result = cookies.bake(extra_context={"gpu_usage": gpu})
     _assert_baked(result)
     compose = (result.project_path / ".devcontainer/docker-compose.yml").read_text()
     assert ("driver: nvidia" in compose) == (gpu == "yes")
@@ -49,7 +49,7 @@ def test_gpu_block_preparation(cookies, gpu):
 
 @pytest.mark.parametrize("gpu", ["yes", "no"])
 def test_rendered_pyproject_is_valid_toml(cookies, gpu):
-    result = cookies.bake(extra_context={"gpu_training": gpu})
+    result = cookies.bake(extra_context={"gpu_usage": gpu})
     _assert_baked(result)
     data = tomllib.loads((result.project_path / "pyproject.toml").read_text())
 

@@ -10,7 +10,7 @@
     "deepseek-coder-v2:16b",
     "none"
   ],
-  "gpu_training": [
+  "gpu_usage": [
     "no",
     "yes"
   ]
