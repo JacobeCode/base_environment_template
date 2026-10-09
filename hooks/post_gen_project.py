@@ -30,7 +30,7 @@ def rm(*parts: str) -> None:
 #     fail(f"unexpected local_model={LOCAL_MODEL!r}; expected one of {sorted(VALID)}")
 
 
-def main(local_model: str) -> None:
+def main(local_model: str, monitoring: str = "no") -> None:
     """
     Strip local-model-only files when the user chose no local model.
     """
@@ -41,8 +41,10 @@ def main(local_model: str) -> None:
         rm("scripts", "chat.sh")
         rm("scripts", "model.sh")
         rm(".continue")
-    print(f"[post_gen] local_model={local_model}")
+    if monitoring == "no":
+        rm("monitoring")
+    print(f"[post_gen] local_model={local_model} | monitoring={monitoring}")
 
 
 if __name__ == "__main__":
-    main("{{ cookiecutter.local_model }}")
+    main("{{ cookiecutter.local_model }}", "{{ cookiecutter.monitoring }}")

@@ -13,5 +13,9 @@
   "gpu_usage": [
     "no",
     "yes"
+  ],
+  "monitoring": [
+    "no",
+    "yes"
   ]
 }

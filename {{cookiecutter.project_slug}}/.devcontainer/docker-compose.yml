@@ -11,9 +11,11 @@ services:
         condition: service_started
       model-init:
         condition: service_completed_successfully
+{%- endif %}
     environment:
       # for login persistence
       CLAUDE_CONFIG_DIR: "/home/vscode/.claude"
+{%- if cookiecutter.local_model != "none" %}
       # SkillSpector -> local model (service name resolves on the compose network)
       SKILLSPECTOR_PROVIDER: "openai"
       SKILLSPECTOR_MODEL: "{{cookiecutter.local_model}}"
@@ -21,6 +23,20 @@ services:
       OPENAI_API_KEY: "not-needed"
       # For terminal use of the model via the ollama CLI, if installed
       OLLAMA_HOST: "ollama:11434"
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+      # OTEL telemetry
+      CLAUDE_CODE_ENABLE_TELEMETRY: "1"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "http://prometheus:9090/api/v1/otlp/v1/metrics"
+      OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: "http://loki:3100/otlp/v1/logs"
+      # Prometheus's OTLP receiver wants cumulative, not Claude Code's DELTA default.
+      OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "cumulative"
+      OTEL_METRIC_EXPORT_INTERVAL: "10000"
+      # Privacy gates — OFF by default (numbers only, no content).
+      OTEL_LOG_USER_PROMPTS: "0"
 {%- endif %}
 {%- if cookiecutter.gpu_usage == "yes" %}
     deploy:
@@ -66,8 +82,54 @@ services:
     restart: "no"
 {%- endif %}
 
+{%- if cookiecutter.monitoring == "yes" %}
+  # monitoring stack - with auto-wake-up - must be ran with just dev up --profile monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["monitoring"]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-otlp-receiver"     # native OTLP ingest — no Collector container needed
+      - "--enable-feature=otlp-deltatocumulative"   # converts DELTA metrics to cumulative for Prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro   # ro - read only sequence
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:latest                  # log store
+    profiles: ["monitoring"]
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - loki-data:/loki                         # persistent log storage
+    ports:
+      - "3100:3100"                             # reachable from the host too
+
+    grafana:
+    image: grafana/grafana:latest               # the dashboard UI
+    profiles: ["monitoring"]
+    depends_on: [prometheus, loki]            
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"         # no login screen | anonymous access
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"      
+      GF_INSTALL_PLUGINS: ""                    
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro   # datasources + dashboard loader
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro   # the dashboard JSON itself
+      - grafana-data:/var/lib/grafana           # Grafana's own state (users, preferences)
+    ports:
+      - "3000:3000"                             
+{%- endif %}
+
 volumes:
   claude-config:
 {%- if cookiecutter.local_model != "none" %}
   ollama-models:
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+  prometheus-data:
+  loki-data:
+  grafana-data:
 {%- endif %}
