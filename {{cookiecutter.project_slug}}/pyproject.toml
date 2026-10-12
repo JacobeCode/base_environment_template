@@ -17,7 +17,7 @@ dev = [
     "ruff>=0.15.16",
     "pre-commit>=4.1.0",
 ]
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 train = [
     "torch",
     "torchvision",
@@ -34,7 +34,7 @@ packages = ["src/{{cookiecutter.project_slug}}"]
 
 [tool.uv.sources]
 skillspector = { git = "https://github.com/NVIDIA/skillspector.git" }
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 torch = [{ index = "pytorch-cu126" }]   # cu126 for broadly compatible option
 torchvision = [{ index = "pytorch-cu126" }]
 

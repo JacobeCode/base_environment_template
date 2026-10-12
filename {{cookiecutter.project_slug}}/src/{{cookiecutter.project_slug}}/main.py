@@ -1,5 +1,6 @@
 def main():
-    print("Hello from template project!")
+    print("{{ cookiecutter.project_name }}: " \
+    "hello from {{ cookiecutter.project_slug }}.")
 
 
 if __name__ == "__main__":

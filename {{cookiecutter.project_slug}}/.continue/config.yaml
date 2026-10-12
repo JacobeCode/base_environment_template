@@ -3,7 +3,7 @@ version: 0.0.1
 schema: v1
 
 models:
-    - name: Local Coder
+    - name: "Local - {{cookiecutter.local_model}}"
       provider: ollama
       model: "{{cookiecutter.local_model}}"
       apiBase: http://ollama:11434

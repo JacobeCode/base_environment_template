@@ -45,6 +45,14 @@ def test_model_keeps_local_files(tmp_path, monkeypatch):
     assert os.path.exists(".continue")
 
 
+@pytest.mark.parametrize("monitoring", ["no", "yes"])
+def test_monitoring_no_strips_monitoring_dir(tmp_path, monkeypatch, monitoring):
+    monkeypatch.chdir(tmp_path)
+    _touch("monitoring/prometheus.yml")
+    post_gen.main("none", monitoring)
+    assert os.path.exists("monitoring") == (monitoring == "yes")
+
+
 def test_rm_failure_exits_nonzero(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     _touch("scripts/ask.sh")

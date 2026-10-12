@@ -2,16 +2,6 @@
 
 {{ cookiecutter.project_description }}
 
-## Setup
-
-Open in VS Code → "Reopen in Container." `uv sync` and the pre-commit hooks run automatically on container start (see `.devcontainer/post-create.sh`).
-
-## Commands
-
-Run `just --list` for the full set.
-
-See `CLAUDE.md` for agent-specific conventions and the security/tooling setup.
-
 ## Status
 
 Skeleton only — `src/{{ cookiecutter.project_slug }}/main.py` is the sole source file (a stub entry point). No models, datasets, or experiments yet.
@@ -24,17 +14,20 @@ Skeleton only — `src/{{ cookiecutter.project_slug }}/main.py` is the sole sour
 | Package manager | `uv` |
 | Virtual env | `.venv/` |
 | Dev container | Docker Compose (`.devcontainer/`) — services: `dev`{%- if cookiecutter.local_model != "none" %}, `ollama`, `model-init`{%- endif %} |
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 | GPU | passthrough on `dev` (NVIDIA Container Toolkit required on host) |
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+| Monitoring | Grafana/Prometheus/Loki, opt-in via `just monitor-up` (not part of `docker compose up`) |
 {%- endif %}
 
 ## Dependencies (`pyproject.toml`)
 
 - `pytest` + `pytest-cov` — testing + total coverage gate
 - `coverage-threshold` — per-file coverage floor
-- `ruff` — linting + formatting (line-length 100, rules `E`/`F`/`I`/`UP`/`B` — replaces black/isort/pycodestyle/pyflakes as separate tools)
+- `ruff` — linting + formatting (line-length 120, rules `E`/`F`/`I`/`UP`/`B` — replaces black/isort/pycodestyle/pyflakes as separate tools)
 - `pre-commit` — the hooks below, installed automatically on container start
-{%- if cookiecutter.gpu_training == "yes" %}
+{%- if cookiecutter.gpu_usage == "yes" %}
 - `torch` / `torchvision` — CUDA build, from the `pytorch-cu126` index (verify against `pytorch.org/get-started/locally/`, not PyPI's default CPU build)
 {%- endif %}
 
@@ -58,9 +51,16 @@ just ask <question>                                  # one-shot local-model quer
 {%- else %}
 just scan [target]                                   # SkillSpector (static-only)
 {%- endif %}
-{%- if cookiecutter.gpu_training == "yes" %}
-just train <cmd>                                     # evicts local model, runs cmd, reloads after
+{%- if cookiecutter.gpu_usage == "yes" %}
+{%- if cookiecutter.local_model != "none" %}
+just model-off                                        # free the model's GPU memory before training
+just model-on                                         # load it back after training
+{%- endif %}
 just gpu                                              # verify CUDA is visible
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+just monitor-up                                      # start the usage dashboard (Grafana @ :3000)
+just monitor-down                                    # stop it
 {%- endif %}
 ```
 
@@ -102,8 +102,8 @@ This is not `fail_fast` — a single commit attempt reports every failing hook, 
 │   ├── ask.sh
 │   ├── chat.sh
 {%- endif %}
-{%- if cookiecutter.gpu_training == "yes" %}
-│   └── train.sh
+{%- if cookiecutter.local_model != "none" %}
+│   └── model.sh
 {%- endif %}
 ├── logs/                       # gitignored, truncated per run
 ├── skills/
@@ -113,7 +113,8 @@ This is not `fail_fast` — a single commit attempt reports every failing hook, 
 │   └── ci.yml
 ├── .gitignore
 ├── .dockerignore
-├── .env.example
+├── .env                        # gitignored, real values
+├── .env.example                # committed, durable reference
 ├── justfile
 ├── CLAUDE.md                   # guidance for Claude Code
 ├── pyproject.toml
