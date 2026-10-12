@@ -30,6 +30,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {%- if cookiecutter.gpu_usage == "yes" %}
 - Train: run your training command directly{%- if cookiecutter.local_model != "none" %} — first `just model-off` (frees the GPU from the local model), then `just model-on` after{%- endif %}
 {%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+- Usage/cost dashboard: `just monitor-up` (Grafana at `localhost:3000`), `just monitor-down` when done — off by default, not part of `docker compose up`
+{%- endif %}
 
 ## Structure
 
@@ -40,6 +43,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `logs/` — per-script run logs. Gitignored; truncated at the start of each run, so only the most recent run is kept.
 {%- if cookiecutter.local_model != "none" %}
 - `.continue/config.yaml` — points Continue (editor extension + `cn` CLI) at the local model.
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+- `monitoring/` — Prometheus + Grafana config for the optional usage dashboard.
 {%- endif %}
 
 ## Code style
@@ -77,4 +83,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {%- if cookiecutter.gpu_usage == "yes" %}
 - Free it by hand for training: `just model-off` before, `just model-on` after — otherwise it keeps its VRAM and training may OOM. Anything that queries it mid-run (Continue autocomplete) reloads it, so turn autocomplete off for long runs.
 {%- endif %}
+{%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+
+## Monitoring
+
+- Cost, token, and tool-call dashboards (Claude Code's own OTel export — works under subscription login, not just an API key). `just monitor-up` to start, `just monitor-down` to stop; not running unless you start it.
+{%- if cookiecutter.local_model != "none" %}
+- No local-model panel: Ollama usage (tokens/latency) is not monitored.
+{%- endif %}
+- Prompt/response text capture is off by default (`OTEL_LOG_USER_PROMPTS`/`OTEL_LOG_RAW_API_BODIES` in `.env`, both unset) — turn on deliberately, not something to flip without thinking about what it captures.
 {%- endif %}

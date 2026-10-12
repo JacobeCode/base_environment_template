@@ -37,3 +37,17 @@ model-on:
 
 {%- endif %}
 {%- endif %}
+{%- if cookiecutter.monitoring == "yes" %}
+
+# Bring up the usage/cost dashboard (Grafana + Prometheus + Loki) — opt-in, not part of `docker compose up` (§16)
+monitor-up:
+    docker compose --profile monitoring up -d
+
+# Tear the monitoring stack back down (data volumes persist)
+monitor-down:
+    docker compose --profile monitoring down
+
+# Open the dashboard
+monitor-open:
+    xdg-open http://localhost:3000 2>/dev/null || open http://localhost:3000 2>/dev/null || echo "open http://localhost:3000"
+{%- endif %}

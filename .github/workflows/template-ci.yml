@@ -6,8 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        local_model: ['qwen2.5-coder:14b', 'none']
-        gpu_usage: ['yes', 'no']
+        local_model: ["qwen2.5-coder:14b", "none"]
+        gpu_usage: ["yes", "no"]
+        monitoring: ["yes", "no"]
+        guardrails: ["yes", "no"]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -19,11 +21,12 @@ jobs:
         run: |
           cookiecutter . --no-input \
             local_model="${{ matrix.local_model }}" \
-            gpu_usage="${{ matrix.gpu_usage }}" -o /tmp/out
+            gpu_usage="${{ matrix.gpu_usage }}" \
+            monitoring="${{ matrix.monitoring }}" -o /tmp/out
       - name: Validate the RENDERED output
         run: |
           cd /tmp/out/*
           uvx ruff check .                                    # rendered Python is real Python
           python -c "import tomllib,pathlib; tomllib.loads(pathlib.Path('pyproject.toml').read_text())"
-          shellcheck scripts/*.sh .devcontainer/post-create.sh   # rendered bash is real bash
+          shellcheck -x scripts/*.sh .devcontainer/post-create.sh   # rendered bash is real bash
           docker compose -f .devcontainer/docker-compose.yml config >/dev/null

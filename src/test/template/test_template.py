@@ -106,3 +106,17 @@ def test_continue_cli_install_gated_by_local_model(baked, model):
     result = baked(local_model=model)
     post_create = (result.project_path / ".devcontainer" / "post-create.sh").read_text()
     assert ("@continuedev/cli" in post_create) == (model != "none")
+
+
+@pytest.mark.parametrize("monitoring", ["yes", "no"])
+def test_monitoring_dir_and_services_conditional(baked, monitoring):
+    """monitoring/ dir + Grafana/Prometheus/Loki compose services exist if
+    monitoring == 'yes' — exercises BOTH mechanisms at once: post_gen's directory
+    deletion and docker-compose.yml's Jinja gating"""
+    result = baked(monitoring=monitoring)
+    mon_dir = result.project_path / "monitoring"
+    compose = (result.project_path / ".devcontainer" / "docker-compose.yml").read_text()
+    assert mon_dir.exists() == (monitoring == "yes")
+    assert ("grafana:" in compose) == (monitoring == "yes")
+    if monitoring == "yes":
+        assert 'profiles: ["monitoring"]' in compose
