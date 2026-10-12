@@ -107,7 +107,7 @@ services:
     ports:
       - "3100:3100"                             # reachable from the host too
 
-    grafana:
+  grafana:
     image: grafana/grafana:latest               # the dashboard UI
     profiles: ["monitoring"]
     depends_on: [prometheus, loki]            
