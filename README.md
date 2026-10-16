@@ -65,7 +65,8 @@ Logs for each script are written to `logs/<name>.log` (overwritten on every run)
 | `project_name` | free text | Becomes the slug, container name and package directory. |
 | `project_description` | free text | Rendered into `CLAUDE.md` and the generated `README.md`. |
 | `author` | free text | Package metadata. |
-| `python_version` | `3.12` | Python version managed by `uv`. |
+| `python_version` | `3.14` (default) | Python version managed by `uv`. |
+| `cuda_version` | `cu130` (default), `cu132`, `cu134`, `cu126` | (`gpu_usage=yes`) PyTorch CUDA wheel index. Must match your GPU and driver; |
 | `local_model` | `qwen2.5-coder:14b` (default), `qwen2.5-coder:7b`, `deepseek-coder-v2:16b`, `none` | The whole local-model layer. `none` removes Ollama, the model pull, `ask.sh`/`chat.sh`/`model.sh` and the Continue config; SkillSpector then runs static-only. |
 | `gpu_usage` | `no` (default), `yes` | `yes` gives the dev container the NVIDIA GPU for PyTorch/CUDA, and gives `ollama` the GPU too when a model is configured. It is chosen at generation time; there is no auto-detection. |
 | `monitoring` | `no` (default), `yes` | Renders the Prometheus/Loki/Grafana stack and the telemetry variables. It is off at runtime until you ask for it. |

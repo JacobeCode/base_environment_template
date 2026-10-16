@@ -29,4 +29,5 @@ jobs:
           uvx ruff check .                                    # rendered Python is real Python
           python -c "import tomllib,pathlib; tomllib.loads(pathlib.Path('pyproject.toml').read_text())"
           shellcheck -x scripts/*.sh .devcontainer/post-create.sh   # rendered bash is real bash
+          uvx pre-commit validate-config .pre-commit-config.yaml   # rendered pre-commit config is valid
           docker compose -f .devcontainer/docker-compose.yml config >/dev/null

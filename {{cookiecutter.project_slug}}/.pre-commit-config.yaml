@@ -43,7 +43,7 @@ repos:
           language: system
           types_or: [markdown]
         - id: skillspector-static
-          name:
+          name: skillspector static scan
           entry: skillspector scan ./skills/ --no-llm --format terminal
           language: system
           pass_filenames: false

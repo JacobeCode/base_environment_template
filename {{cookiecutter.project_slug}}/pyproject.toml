@@ -35,12 +35,12 @@ packages = ["src/{{cookiecutter.project_slug}}"]
 [tool.uv.sources]
 skillspector = { git = "https://github.com/NVIDIA/skillspector.git" }
 {%- if cookiecutter.gpu_usage == "yes" %}
-torch = [{ index = "pytorch-cu126" }]   # cu126 for broadly compatible option
-torchvision = [{ index = "pytorch-cu126" }]
+torch = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]   # cu126 for broadly compatible option
+torchvision = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]
 
 [[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
+name = "pytorch-{{cookiecutter.cuda_version}}"
+url = "https://download.pytorch.org/whl/{{cookiecutter.cuda_version}}"
 explicit = true
 {%- endif %}
 

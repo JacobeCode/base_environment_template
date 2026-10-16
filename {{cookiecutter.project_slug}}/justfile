@@ -41,11 +41,24 @@ model-on:
 
 # Bring up the usage/cost dashboard (Grafana + Prometheus + Loki) — opt-in, not part of `docker compose up` (§16)
 monitor-up:
-    docker compose --profile monitoring up -d
+    @if command -v docker >/dev/null 2>&1; then \
+        docker compose -f .devcontainer/docker-compose.yml -p {{cookiecutter.project_slug}}_devcontainer --profile monitoring up -d; \
+    else \
+        echo "No docker CLI here (dev container). Run this in a HOST terminal, in the project folder:"; \
+        echo "  docker compose -f .devcontainer/docker-compose.yml -p {{cookiecutter.project_slug}}_devcontainer --profile monitoring up -d"; \
+        exit 1; \
+    fi
 
 # Tear the monitoring stack back down (data volumes persist)
 monitor-down:
-    docker compose --profile monitoring down
+    @if command -v docker >/dev/null 2>&1; then \
+        docker compose -f .devcontainer/docker-compose.yml -p {{cookiecutter.project_slug}}_devcontainer --profile monitoring down; \
+    else \
+        echo "No docker CLI here (dev container). Run this in a HOST terminal, in the project folder:"; \
+        echo "  docker compose -f .devcontainer/docker-compose.yml -p {{cookiecutter.project_slug}}_devcontainer --profile monitoring down"; \
+        exit 1; \
+    fi
+
 
 # Open the dashboard
 monitor-open:

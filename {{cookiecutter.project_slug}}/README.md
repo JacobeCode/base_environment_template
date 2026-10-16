@@ -28,7 +28,7 @@ Skeleton only — `src/{{ cookiecutter.project_slug }}/main.py` is the sole sour
 - `ruff` — linting + formatting (line-length 120, rules `E`/`F`/`I`/`UP`/`B` — replaces black/isort/pycodestyle/pyflakes as separate tools)
 - `pre-commit` — the hooks below, installed automatically on container start
 {%- if cookiecutter.gpu_usage == "yes" %}
-- `torch` / `torchvision` — CUDA build, from the `pytorch-cu126` index (verify against `pytorch.org/get-started/locally/`, not PyPI's default CPU build)
+- `torch` / `torchvision` — CUDA build, from the `pytorch-cuxxx` index (verify against `pytorch.org/get-started/locally/`, not PyPI's default CPU build)
 {%- endif %}
 
 ## Setup
@@ -65,6 +65,18 @@ just monitor-down                                    # stop it
 ```
 
 Run `just --list` for the full set.
+
+### Executable scripts (AD. just)
+
+Generated projects run scripts directly (`./scripts/model.sh`, via `just`), so they need the executable bit. Cookiecutter copies file modes as they are in the template checkout, and `post_gen_project.py` adds the bit as a safety net (only to `.sh` files in `scripts/` and `.devcontainer/` that start with `#!`). The source of truth is still git: record the mode when you add or change a directly-run script, so the template is correct on its own. Without it, a checkout on a filesystem without Unix modes (for example a Windows mount) hands the hook scripts with the wrong mode, and the hook has to repair every bake:
+
+```bash
+git add --chmod=+x "{{cookiecutter.project_slug}}/scripts/new-script.sh"     # new file
+git update-index --chmod=+x "{{cookiecutter.project_slug}}/scripts/old.sh"  # already tracked
+git ls-files -s "{{cookiecutter.project_slug}}/scripts"                     # 100755 = executable
+```
+
+Sourced helpers without a `#!` line (such as `logging.sh`) stay non-executable on purpose.
 
 ## Quality gates (pre-commit)
 
