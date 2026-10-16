@@ -25,6 +25,35 @@ def rm(*parts: str) -> None:
         sys.exit(1)
 
 
+def _has_shebang(path: str) -> bool:
+    with open(path, "rb") as fh:
+        return fh.read(2) == b"#!"
+
+
+def make_scripts_executable() -> None:
+    """
+    Adjust script permission to be executable by just (WSL / Windows - FileMode=false).
+    """
+    for folder in ("scripts", ".devcontainer"):
+        if os.path.islink(folder) or not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            path = os.path.join(folder, name)
+            if not name.endswith(".sh") or os.path.islink(path) or not os.path.isfile(path):
+                continue
+            # Cheap checks on the mode first; the file is only opened (shebang) at the end.
+            mode = os.stat(path).st_mode
+            if mode & 0o100:  # the owner (the user who runs ./script.sh) can already execute it
+                continue
+            new_mode = mode | ((mode & 0o444) >> 2)
+            if new_mode == mode:  # nothing to add (e.g. nobody can read the file)
+                continue
+            if not _has_shebang(path):
+                continue
+            os.chmod(path, new_mode)
+            print(f"[post_gen] chmod +x {path}")
+
+
 # Current validation is not needed, but passed for further iteration in the future.
 # if LOCAL_MODEL not in VALID:
 #     fail(f"unexpected local_model={LOCAL_MODEL!r}; expected one of {sorted(VALID)}")
@@ -43,6 +72,7 @@ def main(local_model: str, monitoring: str = "no") -> None:
         rm(".continue")
     if monitoring == "no":
         rm("monitoring")
+    make_scripts_executable()
     print(f"[post_gen] local_model={local_model} | monitoring={monitoring}")
 
 

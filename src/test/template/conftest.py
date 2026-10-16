@@ -29,3 +29,15 @@ def baked(cookies):
         return result
 
     return _bake
+
+
+@pytest.fixture
+def baked_from(cookies):
+    """Like `baked`, but bakes from a given template directory (e.g. a modified copy)."""
+
+    def _bake(template, **extra_context):
+        result = cookies.bake(template=str(template), extra_context=extra_context)
+        assert_baked_ok(result)
+        return result
+
+    return _bake

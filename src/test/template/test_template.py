@@ -1,8 +1,13 @@
 """Render the template across its option matrix and assert the output is correct."""
 
+import shutil
 import tomllib
+from pathlib import Path
 
 import pytest
+
+# template root for the repository path
+TEMPLATE_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_bakes_with_defaults(baked):
@@ -65,6 +70,26 @@ def test_model_script_and_recipes_follow_local_model(baked):
     assert not (without.project_path / "scripts" / "model.sh").exists()
 
 
+def test_shell_scripts_are_executable_even_if_template_modes_are_not(baked_from, tmp_path):
+    """
+    The post_gen hook must fix the exec bit itself. Bake from a COPY of the template whose
+    scripts are 0644, then assert the baked scripts are 0755.
+    """
+    template = tmp_path / "template"
+    template.mkdir()
+    skip = shutil.ignore_patterns("__pycache__", "*.pyc")
+    shutil.copy(TEMPLATE_ROOT / "cookiecutter.json", template)
+    shutil.copytree(TEMPLATE_ROOT / "hooks", template / "hooks", ignore=skip)
+    project_dir = "{{cookiecutter.project_slug}}"
+    shutil.copytree(TEMPLATE_ROOT / project_dir, template / project_dir, ignore=skip)
+    for script in (template / project_dir).glob("**/*.sh"):
+        script.chmod(0o644)
+
+    result = baked_from(template, local_model="qwen2.5-coder:14b")
+    for rel in ("scripts/model.sh", "scripts/scan.sh", ".devcontainer/post-create.sh"):
+        assert (result.project_path / rel).stat().st_mode & 0o100, rel  # owner exec bit
+
+
 @pytest.mark.parametrize("gpu", ["yes", "no"])
 def test_rendered_pyproject_is_valid_toml(baked, gpu):
     """
@@ -87,7 +112,7 @@ def test_rendered_pyproject_is_valid_toml(baked, gpu):
     has_train_group = "train" in data.get("dependency-groups", {})
     has_torch_source = "torch" in data.get("tool", {}).get("uv", {}).get("sources", {})
     has_pytorch_index = any(
-        idx.get("name") == "pytorch-cu126" for idx in data.get("tool", {}).get("uv", {}).get("index", [])
+        idx.get("name", "").startswith("pytorch-cu") for idx in data.get("tool", {}).get("uv", {}).get("index", [])
     )
     assert has_train_group == (gpu == "yes")
     assert has_torch_source == (gpu == "yes")

@@ -37,6 +37,21 @@ if ! command -v just >/dev/null; then
         || warn "just install failed — use the scripts/*.sh files directly instead of just <recipe>"
 fi
 
+# ---------- CLAUDE CONFIG VOLUME OWNERSHIP ----------
+
+CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+if [ ! -w "$CLAUDE_DIR" ]; then
+  case "$CLAUDE_DIR" in
+    /home/*/.claude)
+      log "Fixing ownership of $CLAUDE_DIR"
+      sudo chown -R "$(id -u):$(id -g)" "$CLAUDE_DIR" \
+        || warn "could not chown $CLAUDE_DIR - claude plugins/MCP installs will fail"
+      ;;
+    *)
+      warn "refusing to chown unexpected path: $CLAUDE_DIR - fix its ownership manually"
+      ;;
+  esac
+fi
 
 # ---------- AGENT CODING TOOLS ----------
 

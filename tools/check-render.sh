@@ -27,7 +27,7 @@ RUFF_EXCLUDE_ARGS=()
 for dir_name in "${EXCLUDE_DIRS[@]}"; do
   RUFF_EXCLUDE_ARGS+=(--exclude "$dir_name")
 done
-uv run ruff check . "${RUFF_EXCLUDE_ARGS[@]}"
+uvx ruff check . "${RUFF_EXCLUDE_ARGS[@]}"
 
 # toml check
 echo "Running toml check on rendered output..."
@@ -44,4 +44,4 @@ FIND_NAME_ARGS=()
 for dir_name in "${EXCLUDE_DIRS[@]}"; do
   FIND_NAME_ARGS+=(-name "$dir_name" -o)
 done
-find . \( -type d \( "${FIND_NAME_ARGS[@]}" -false \) -prune \) -o -name '*.sh' -print0 | xargs -0 --no-run-if-empty uv run --with shellcheck-py shellcheck
+find . \( -type d \( "${FIND_NAME_ARGS[@]}" -false \) -prune \) -o -name '*.sh' -print0 | xargs -0 --no-run-if-empty uvx --from shellcheck-py shellcheck -x
