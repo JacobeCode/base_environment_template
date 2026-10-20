@@ -1,3 +1,4 @@
+# file wrapper for Jinja - if variables would be needed this would need to change
 {% raw %}
 name: skill security scan
 on:
