@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {%- if cookiecutter.local_model != "none" %}
 - Scan skills: `just scan [target]` (static always; LLM pass uses the local model)
 - Ask the local model (one-shot): `just ask <question>`
-- Chat with memory: `./scripts/chat.sh`, or the Continue CLI (`cn`) — both use `.continue/config.yaml`
+- Chat with memory: Continue CLI (`cn`) — use `.continue/config.yaml`
 {%- else %}
 - Scan skills: `just scan [target]` (static-only — no local model configured)
 {%- endif %}
@@ -37,8 +37,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Structure
 
 - `src/{{ cookiecutter.project_slug }}/` — the package.
-- `tests/` — test suite.
-- `scripts/` — `scan.sh` (SkillSpector){%- if cookiecutter.local_model != "none" %}, `ask.sh`/`chat.sh` (local model){%- endif %}{%- if cookiecutter.local_model != "none" %}, `model.sh` (free/restore the model around training){%- endif %}, `logging.sh` (shared log/warn/err, sourced by the others).
+- `src/test/` — test suite.
+- `scripts/` — `scan.sh` (SkillSpector){%- if cookiecutter.local_model != "none" %}, `ask.sh` (local model){%- endif %}{%- if cookiecutter.local_model != "none" %}, `model.sh` (free/restore the model around training){%- endif %}, `logging.sh` (shared log/warn/err, sourced by the others).
 - `skills/` — third-party agent skills. **Every skill here is scanned by SkillSpector before use** — see Security below.
 - `logs/` — per-script run logs. Gitignored; truncated at the start of each run, so only the most recent run is kept.
 {%- if cookiecutter.local_model != "none" %}
@@ -57,7 +57,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Pre-commit
 
-- Hygiene: JSON/YAML checks, EOF fixer, trailing whitespace, private-key detection, large-file guard, debug-statement detection (excluded on `main.py`'s intentional entry-point `print()`).
+- Hygiene: JSON/YAML checks, EOF fixer, trailing whitespace, private-key detection, large-file guard, debug-statement detection (leftover `pdb`/`breakpoint()`; it does not flag `print()`).
 - `ruff-check` (`--fix`) then `ruff-format`.
 - `uv-lock` — keeps `uv.lock` in sync with `pyproject.toml`.
 - `blacken-docs` — formats Python code blocks in markdown docs.

@@ -113,7 +113,7 @@ services:
     depends_on: [prometheus, loki]            
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: "true"         # no login screen | anonymous access
-      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"      
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Editor"      
       GF_INSTALL_PLUGINS: ""                    
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro   # datasources + dashboard loader

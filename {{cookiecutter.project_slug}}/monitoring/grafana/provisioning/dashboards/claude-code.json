@@ -1,0 +1,240 @@
+{
+    "title": "Claude Code usage",
+    "uid": "claude-code",
+    "schemaVersion": 39,
+    "refresh": "30s",
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "panels": [
+        {
+            "id": 1,
+            "type": "stat",
+            "title": "Total cost (USD)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 0,
+                "y": 0,
+                "w": 6,
+                "h": 5
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "currencyUSD"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(claude_code_cost_usage_USD_total)",
+                    "instant": true
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "type": "stat",
+            "title": "Total tokens",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 6,
+                "y": 0,
+                "w": 6,
+                "h": 5
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(claude_code_token_usage_tokens_total)",
+                    "instant": true
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "type": "stat",
+            "title": "Active coding time",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 12,
+                "y": 0,
+                "w": 6,
+                "h": 5
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(claude_code_active_time_total_seconds_total)",
+                    "instant": true
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "type": "stat",
+            "title": "Tool decisions",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 18,
+                "y": 0,
+                "w": 6,
+                "h": 5
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum(claude_code_code_edit_tool_decision_total)",
+                    "instant": true
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "type": "timeseries",
+            "title": "Cost by model (USD)",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 0,
+                "y": 5,
+                "w": 12,
+                "h": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "currencyUSD"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (model) (claude_code_cost_usage_USD_total)",
+                    "legendFormat": "__auto"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "type": "timeseries",
+            "title": "Tokens by type",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 12,
+                "y": 5,
+                "w": 12,
+                "h": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (type) (claude_code_token_usage_tokens_total)",
+                    "legendFormat": "__auto"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "type": "timeseries",
+            "title": "Tokens by model",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 0,
+                "y": 13,
+                "w": 12,
+                "h": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (model) (claude_code_token_usage_tokens_total)",
+                    "legendFormat": "__auto"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "type": "timeseries",
+            "title": "Tool decisions per 5m",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "x": 12,
+                "y": 13,
+                "w": 12,
+                "h": 8
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "expr": "sum by (decision) (rate(claude_code_code_edit_tool_decision_total[5m]))",
+                    "legendFormat": "__auto"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "type": "logs",
+            "title": "Recent events (Loki)",
+            "datasource": {
+                "type": "loki",
+                "uid": "loki"
+            },
+            "gridPos": {
+                "x": 0,
+                "y": 21,
+                "w": 24,
+                "h": 10
+            },
+            "targets": [
+                {
+                    "expr": "{job=~\".+\"}"
+                }
+            ]
+        }
+    ]
+}

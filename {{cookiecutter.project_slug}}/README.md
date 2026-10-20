@@ -47,7 +47,6 @@ uv run pre-commit run --all-files                    # run all hooks manually
 {%- if cookiecutter.local_model != "none" %}
 just scan [target]                                   # SkillSpector (static + LLM)
 just ask <question>                                  # one-shot local-model query
-./scripts/chat.sh                                    # local-model chat with memory
 {%- else %}
 just scan [target]                                   # SkillSpector (static-only)
 {%- endif %}
@@ -80,7 +79,7 @@ Sourced helpers without a `#!` line (such as `logging.sh`) stay non-executable o
 
 ## Quality gates (pre-commit)
 
-1. Hygiene: trailing whitespace, EOF newline, large files, private keys, debug-statement detection (excluded on `main.py`'s intentional entry-point `print()`)
+1. Hygiene: trailing whitespace, EOF newline, large files, private keys, debug-statement detection (leftover `pdb`/`breakpoint()`; it does not flag `print()`).
 2. JSON/YAML validation
 3. `ruff-check` (`--fix`), then `ruff-format` — in that order, since fixes can produce code that needs reformatting
 4. `uv-lock` — keeps `uv.lock` in sync with `pyproject.toml`
@@ -104,15 +103,14 @@ This is not `fail_fast` — a single commit attempt reports every failing hook, 
 {%- endif %}
 ├── src/{{ cookiecutter.project_slug }}/
 │   ├── __init__.py
-│   └── main.py                # stub entry point
-├── tests/
-│   └── test_smoke.py
+│   ├── main.py                # stub entry point
+│   ├── test/
+│        └── test_smoke.py
 ├── scripts/
 │   ├── logging.sh             # shared log/warn/err
 │   ├── scan.sh
 {%- if cookiecutter.local_model != "none" %}
 │   ├── ask.sh
-│   ├── chat.sh
 {%- endif %}
 {%- if cookiecutter.local_model != "none" %}
 │   └── model.sh

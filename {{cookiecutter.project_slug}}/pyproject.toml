@@ -45,13 +45,16 @@ explicit = true
 {%- endif %}
 
 [tool.pytest.ini_options]
+testpaths = ["src/test"]
 pythonpath = ["src"]
-addopts = "--cov --cov-report=term-missing"
+python_files = ["test_*.py"]
+addopts = "--cov --cov-report=term-missing --import-mode=importlib"
+
 
 [tool.coverage.run]
 source = ["src"]
 branch = true
-omit = ["tests/*"]
+omit = ["src/test/*"]
 
 [tool.coverage.report]
 fail_under = 80

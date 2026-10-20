@@ -32,7 +32,7 @@ repos:
       - id: check-added-large-files
         exclude: *tree
       - id: debug-statements
-        exclude: '(^|/)\{\{cookiecutter\.project_slug\}\}/|^hooks/post_gen_project\.py$'
+        exclude: *tree
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.21

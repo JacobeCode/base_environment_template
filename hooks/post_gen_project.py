@@ -67,7 +67,6 @@ def main(local_model: str, monitoring: str = "no") -> None:
         # docker-compose.yml, devcontainer.json, scan.sh, pyproject guard their own
         # local-model blocks with Jinja; only whole standalone files are removed here.
         rm("scripts", "ask.sh")
-        rm("scripts", "chat.sh")
         rm("scripts", "model.sh")
         rm(".continue")
     if monitoring == "no":
