@@ -16,7 +16,9 @@ UV_VERSION="0.13.1"
 JUST_VERSION="1.59.0"
 CODEGRAPH_VERSION="1.6.2"
 HEADROOM_VERSION="0.41.0"
+{%- if cookiecutter.local_model != "none" %}
 CONTINUE_CLI_VERSION="2.0.0"
+{%- endif %}
 
 # ---------- UV ----------
 
