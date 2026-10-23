@@ -9,7 +9,6 @@ jobs:
         local_model: ["qwen2.5-coder:14b", "none"]
         gpu_usage: ["yes", "no"]
         monitoring: ["yes", "no"]
-        guardrails: ["yes", "no"]
     steps:
       - uses: astral-sh/setup-uv@v7
       - uses: actions/checkout@v7
