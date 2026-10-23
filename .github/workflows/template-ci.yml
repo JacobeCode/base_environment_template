@@ -10,8 +10,8 @@ jobs:
         gpu_usage: ["yes", "no"]
         monitoring: ["yes", "no"]
     steps:
-      - uses: astral-sh/setup-uv@v7
       - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
       - run: uv tool install cookiecutter
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: Install package in dev mode
