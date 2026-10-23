@@ -1,32 +1,54 @@
+# file wrapper for Jinja - if variables would be needed this would need to change
+{% raw %}
 name: skill security scan
 on:
-  push: { paths: ['skills/**', '**/*.md'] }
-  pull_request:
+  push: { paths: ['skills/**', 'CLAUDE.md', 'AGENTS.md', '.claude/**', '.continue/**'] }  # exposing only agent-facing directories
+  pull_request: # required check must always report
 jobs:
   scan:
     runs-on: ubuntu-latest
-    permissions: { security-events: write }
+    permissions:
+      contents: read  # if the repo is on private, this is needed to check out the code
+      security-events: write
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv tool install git+https://github.com/NVIDIA/skillspector.git
-      - run: skillspector scan ./skills/ --no-llm --format sarif --output results.sarif
-        continue-on-error: true   # for passing to JSON inspection
-      - run: skillspector scan ./skills/ --no-llm --format json --output report.json
-        continue-on-error: true
-      - uses: github/codeql-action/upload-sarif@v3
-        with: { sarif_file: results.sarif }
-      - name: Apply recommendation-based gate
+
+      - name: Scan skills and agent instruction files
+        if: ${{ hashFiles('skills/**/SKILL.md', 'CLAUDE.md', 'AGENTS.md', '.claude/**', '.continue/**') != '' }}
         run: |
-          rec=$(jq -r '.risk_assessment.recommendation' report.json)
-          score=$(jq -r '.risk_assessment.score' report.json)
-          echo "score=$score recommendation=$rec"
-          case "$rec" in
-            DO_NOT_INSTALL)
-              echo "::error::SkillSpector: DO_NOT_INSTALL (score $score) — blocking merge"
-              exit 1 ;;
-            CAUTION)
-              echo "::warning::SkillSpector: CAUTION (score $score) — review findings before merging" ;;
-            SAFE)
-              echo "SkillSpector: SAFE (score $score)" ;;
-          esac
+          fail=0
+          n=0
+          for t in skills CLAUDE.md AGENTS.md .claude .continue; do
+            [ -e "$t" ] || continue
+            
+            # skills/ counts only once a real skill exists
+            if [ "$t" = skills ] && [ -z "$(find skills -name SKILL.md -print -quit)" ]; then continue; fi
+            n=$((n+1))
+            echo "== skillspector scan $t =="
+            skillspector scan "$t" --no-llm --format json --output "report-$n.json" || true   # verdict comes from the JSON, not the exit code
+            rec=$(jq -r '.risk_assessment.recommendation // empty' "report-$n.json" 2>/dev/null || true)
+            score=$(jq -r '.risk_assessment.score // "?"' "report-$n.json" 2>/dev/null || true)
+            echo "$t: score=$score recommendation=$rec"
+            case "$rec" in
+              DO_NOT_INSTALL)
+                echo "::error::SkillSpector: $t is DO_NOT_INSTALL (score $score) - blocking merge"; fail=1 ;;
+              CAUTION)
+                echo "::warning::SkillSpector: $t is CAUTION (score $score) - review findings before merging" ;;
+              SAFE)
+                echo "SkillSpector: $t is SAFE (score $score)" ;;
+              *)   # crashed scan (exit 2), missing report, unknown value: FAIL CLOSED
+                echo "::error::SkillSpector: no usable recommendation for $t ('$rec') - treating as failure"; fail=1 ;;
+            esac
+          done
+          exit $fail
+
+      # the loop above is the gate; this is informational
+      - if: ${{ hashFiles('skills/**/SKILL.md') != '' }}
+        run: skillspector scan ./skills/ --no-llm --format sarif --output results.sarif
+        continue-on-error: true      
+      - if: ${{ hashFiles('skills/**/SKILL.md') != '' && hashFiles('results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: results.sarif }
+{% endraw %}

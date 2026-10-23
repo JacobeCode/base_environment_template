@@ -50,11 +50,11 @@ services:
   ollama:
     image: ollama/ollama
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - ollama-models:/root/.ollama          # persist the model across rebuilds
     environment:
-     OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_KEEP_ALIVE: "-1"
     deploy:
       resources:
         limits:
@@ -63,7 +63,7 @@ services:
 {%- if cookiecutter.gpu_usage == "yes" %}
           # ── GPU for inference too (gpu_usage=yes means THIS host has an NVIDIA GPU
           # + Container Toolkit; `dev` gets it for training, `ollama` for the model).
-          # They share the card by hand: `just model-off` before training (§7.8).
+          # They share the card by hand: `just model-off` before training.
         reservations:
           devices:
             - { driver: nvidia, count: all, capabilities: [gpu] }
@@ -72,7 +72,7 @@ services:
     # machine with an NVIDIA GPU to put it on the GPU.
 {%- endif %}
 
-  # One-shot: pulls the model into the volume, then exits. Indempotent on rebuilds.
+  # One-shot: pulls the model into the volume, then exits. Idempotent on rebuilds.
   model-init:
     image: ollama/ollama
     depends_on: [ollama]
@@ -83,9 +83,9 @@ services:
 {%- endif %}
 
 {%- if cookiecutter.monitoring == "yes" %}
-  # monitoring stack - with auto-wake-up - must be ran with just dev up --profile monitoring
+  # monitoring stack. Off by default - start with `just monitor-up`, stop with `just monitor-down`.
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.15.1
     profiles: ["monitoring"]
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -93,34 +93,34 @@ services:
       - "--web.enable-otlp-receiver"     # native OTLP ingest — no Collector container needed
       - "--enable-feature=otlp-deltatocumulative"   # converts DELTA metrics to cumulative for Prometheus
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro   # ro - read only sequence
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro   # ro - read only sequence
       - prometheus-data:/prometheus
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090" 
 
   loki:
-    image: grafana/loki:latest                  # log store
+    image: grafana/loki:3.7.9                  # log store
     profiles: ["monitoring"]
     command: ["-config.file=/etc/loki/local-config.yaml"]
     volumes:
       - loki-data:/loki                         # persistent log storage
     ports:
-      - "3100:3100"                             # reachable from the host too
+      - "127.0.0.1:3100:3100"                             # reachable from the host too
 
   grafana:
-    image: grafana/grafana:latest               # the dashboard UI
+    image: grafana/grafana:13.2.4              # the dashboard UI
     profiles: ["monitoring"]
     depends_on: [prometheus, loki]            
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: "true"         # no login screen | anonymous access
-      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"      
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Editor"      
       GF_INSTALL_PLUGINS: ""                    
     volumes:
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro   # datasources + dashboard loader
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro   # the dashboard JSON itself
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro   # datasources + dashboard loader
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro   # the dashboard JSON itself
       - grafana-data:/var/lib/grafana           # Grafana's own state (users, preferences)
     ports:
-      - "3000:3000"                             
+      - "127.0.0.1:3000:3000"                             
 {%- endif %}
 
 volumes:

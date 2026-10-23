@@ -9,12 +9,23 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/logging.sh" pos
 # setting on "strict, fail-fast" -euo pipefail
 log "Running post-create script..."
 
+# ---------- PIN VERSION ----------
+
+# empty value for latest
+UV_VERSION="0.13.1"
+JUST_VERSION="1.59.0"
+CODEGRAPH_VERSION="1.6.2"
+HEADROOM_VERSION="0.41.0"
+{%- if cookiecutter.local_model != "none" %}
+CONTINUE_CLI_VERSION="2.0.0"
+{%- endif %}
+
 # ---------- UV ----------
 
 log "Installing uv and syncing project dependencies..."
 
 # uv + project dependencies
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/${UV_VERSION:+$UV_VERSION/}install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 uv sync
 
@@ -33,7 +44,9 @@ fi
 
 if ! command -v just >/dev/null; then
   log "Installing just"
-  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$HOME/.local/bin" \
+  just_args=(--to "$HOME/.local/bin")
+  [ -n "$JUST_VERSION" ] && just_args+=(--tag "$JUST_VERSION")
+  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- "${just_args[@]}" \
         || warn "just install failed — use the scripts/*.sh files directly instead of just <recipe>"
 fi
 
@@ -58,7 +71,8 @@ fi
 # CodeGraph — local code knowledge graph, exposed to Claude Code over MCP.
 log "Installing codegraph..."
 
-npm install -g @colbymchenry/codegraph
+npm install -g "@colbymchenry/codegraph${CODEGRAPH_VERSION:+@$CODEGRAPH_VERSION}" \
+  || warn "codegraph npm install failed - codegraph steps below will fail"
 codegraph install --target=claude --yes || warn "codegraph install failed - MCP server not available"
 codegraph init || warn "codegraph init failed - index not built"
 
@@ -74,14 +88,14 @@ claude plugin install ponytail@ponytail || warn "Failed to install ponytail plug
 log "Installing Headroom..."
 
 # defaulting to uv managment as project is based on uv
-uv tool install "headroom-ai[mcp]" || warn "Failed to install headroom-ai"
+uv tool install "headroom-ai[mcp]${HEADROOM_VERSION:+==$HEADROOM_VERSION}" || warn "Failed to install headroom-ai"
 headroom mcp install || warn "Failed to install headroom MCP plugin"
 
 # ---------- CONTINUE CLI ----------
 
 # CLI Continue for local model for capabilities similar to e.g. Claude
 {%- if cookiecutter.local_model != "none" %}
-npm install -g @continuedev/cli || warn "Continue CLI install failed"
+npm install -g "@continuedev/cli${CONTINUE_CLI_VERSION:+@$CONTINUE_CLI_VERSION}" || warn "Continue CLI install failed"
 
 # symlinking .continue/config.yaml into $HOME for Continue extension to use this project's config
 mkdir -p "$HOME/.continue"

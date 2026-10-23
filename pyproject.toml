@@ -23,12 +23,12 @@ dev = [
 testpaths = ["src/test"]
 pythonpath = ["src"]
 python_files = ["test_*.py"]
-addopts = "--cov=hooks --cov-report=term-missing"
+addopts = "--cov=hooks --cov-report=term-missing --import-mode=importlib"
 
 [tool.coverage.run]
 source = ["hooks"]
 branch = true
-omit = []   # for further adjustments
+omit = ["src/test/*"]
 
 [tool.coverage.report]
 fail_under = 70

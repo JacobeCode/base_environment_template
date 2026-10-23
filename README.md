@@ -19,7 +19,7 @@ A Debian dev container (Docker Compose-based devcontainer) with two independent 
 
 **Layer 2: scanning and local assist (optional, chosen at generation time)**
 - [SkillSpector](https://github.com/NVIDIA/skillspector) to security-scan agent skills (`just scan`).
-- A local code model served by Ollama (`qwen2.5-coder:14b`/`7b` or `deepseek-coder-v2:16b`), used by `ask.sh`, `chat.sh`, Continue (editor and CLI) and SkillSpector's LLM pass.
+- A local code model served by Ollama (`qwen2.5-coder:14b`/`7b` or `deepseek-coder-v2:16b`), used by `ask.sh`, Continue (editor and CLI) and SkillSpector's LLM pass.
 - Optional GPU access for training (and for the model).
 - Optional usage/cost dashboard (Prometheus, Loki, Grafana) fed by Claude Code's own OpenTelemetry export.
 
@@ -42,7 +42,7 @@ uv run cookiecutter git@github.com:JacobeCode/base_environment_template.git
 
 # or non-interactive
 uv run cookiecutter git@github.com:JacobeCode/base_environment_template.git --no-input \
-    project_name="my-project" local_model="qwen2.5-coder:14b" gpu_usage=no monitoring=no guardrails=no
+    project_name="my-project" local_model="qwen2.5-coder:14b" gpu_usage=no monitoring=no
 
 cd my_project
 git init
@@ -67,10 +67,9 @@ Logs for each script are written to `logs/<name>.log` (overwritten on every run)
 | `author` | free text | Package metadata. |
 | `python_version` | `3.14` (default) | Python version managed by `uv`. |
 | `cuda_version` | `cu130` (default), `cu132`, `cu134`, `cu126` | (`gpu_usage=yes`) PyTorch CUDA wheel index. Must match your GPU and driver; |
-| `local_model` | `qwen2.5-coder:14b` (default), `qwen2.5-coder:7b`, `deepseek-coder-v2:16b`, `none` | The whole local-model layer. `none` removes Ollama, the model pull, `ask.sh`/`chat.sh`/`model.sh` and the Continue config; SkillSpector then runs static-only. |
+| `local_model` | `qwen2.5-coder:14b` (default), `qwen2.5-coder:7b`, `deepseek-coder-v2:16b`, `none` | The whole local-model layer. `none` removes Ollama, the model pull, `ask.sh`/`model.sh` and the Continue config; SkillSpector then runs static-only. |
 | `gpu_usage` | `no` (default), `yes` | `yes` gives the dev container the NVIDIA GPU for PyTorch/CUDA, and gives `ollama` the GPU too when a model is configured. It is chosen at generation time; there is no auto-detection. |
 | `monitoring` | `no` (default), `yes` | Renders the Prometheus/Loki/Grafana stack and the telemetry variables. It is off at runtime until you ask for it. |
-| `guardrails` | `no` (default), `yes` | Puts a guardrails service in front of the local model. A no-op if `local_model=none`. |
 
 ## Day-to-day commands (in a generated project)
 
@@ -80,7 +79,6 @@ just test       # pytest with coverage
 just lint       # ruff check --fix + format
 just scan       # SkillSpector: static + local LLM pass
 just ask "..."  # one-shot question to the local model
-./scripts/chat.sh   # chat with memory (or the Continue CLI: cn)
 just gpu        # (gpu_usage=yes) check CUDA from PyTorch
 just model-off  # (gpu_usage=yes + local model) free the model's VRAM before training
 just model-on   # load it back afterwards
@@ -99,11 +97,10 @@ Claude Code exports its own metrics and events (cost, tokens, tool calls, by mod
 
 ```
 .devcontainer/      devcontainer.json, docker-compose.yml, post-create.sh
-scripts/            scan.sh, ask.sh, chat.sh, model.sh, logging.sh
+scripts/            scan.sh, ask.sh , model.sh, logging.sh
 .continue/          config.yaml for the Continue extension (symlinked into ~/.continue)
 monitoring/         Prometheus + Grafana config (monitoring=yes)
-guardrails/         guardrails service (guardrails=yes)
-src/, tests/        your code and tests
+src/, src/test/        your code and tests
 pyproject.toml      dependencies (declared here, pinned in uv.lock, installed into .venv)
 justfile, CLAUDE.md, .env / .env.example, .pre-commit-config.yaml, .github/workflows/
 ```
@@ -139,4 +136,4 @@ The template source is full of Jinja (`{{ }}`, `{% %}`), which is not valid Pyth
 9. ~~Check the `.continue` configuration~~ ✅
 10. ~~Add a test for `rm` in `post_gen` for a whole directory~~ ✅
 
-**Also deferred:** monitoring of the local model's token counts and latency (needs a proxy in front of Ollama, or logging in `ask.sh`/`chat.sh`), and a Grafana dashboard JSON (`monitoring/grafana/dashboards/claude-code.json`) built against the real metric names.
+**Also deferred:** monitoring of the local model's token counts and latency (needs a proxy in front of Ollama, or logging in `ask.sh`), and a Grafana dashboard JSON (`monitoring/grafana/dashboards/claude-code.json`) built against the real metric names.

@@ -14,7 +14,7 @@ dev = [
     "pytest>=8",
     "pytest-cov>=5",
     "coverage-threshold>=0.4.4",
-    "ruff>=0.15.16",
+    "ruff==0.16.1",
     "pre-commit>=4.1.0",
 ]
 {%- if cookiecutter.gpu_usage == "yes" %}
@@ -35,8 +35,9 @@ packages = ["src/{{cookiecutter.project_slug}}"]
 [tool.uv.sources]
 skillspector = { git = "https://github.com/NVIDIA/skillspector.git" }
 {%- if cookiecutter.gpu_usage == "yes" %}
-torch = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]   # cu126 for broadly compatible option
+torch = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]
 torchvision = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]
+torchaudio = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]
 
 [[tool.uv.index]]
 name = "pytorch-{{cookiecutter.cuda_version}}"
@@ -45,13 +46,16 @@ explicit = true
 {%- endif %}
 
 [tool.pytest.ini_options]
+testpaths = ["src/test"]
 pythonpath = ["src"]
-addopts = "--cov --cov-report=term-missing"
+python_files = ["test_*.py"]
+addopts = "--cov --cov-report=term-missing --import-mode=importlib"
+
 
 [tool.coverage.run]
 source = ["src"]
 branch = true
-omit = ["tests/*"]
+omit = ["src/test/*"]
 
 [tool.coverage.report]
 fail_under = 80

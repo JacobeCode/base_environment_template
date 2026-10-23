@@ -26,22 +26,18 @@ def _touch(path):
 def test_none_strips_local_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     _touch("scripts/ask.sh")
-    _touch("scripts/chat.sh")
     os.makedirs(".continue")
     post_gen.main("none")
     assert not os.path.exists("scripts/ask.sh")
-    assert not os.path.exists("scripts/chat.sh")
     assert not os.path.exists(".continue")
 
 
 def test_model_keeps_local_files(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     _touch("scripts/ask.sh")
-    _touch("scripts/chat.sh")
     os.makedirs(".continue")
     post_gen.main("qwen2.5-coder:14b")
     assert os.path.exists("scripts/ask.sh")
-    assert os.path.exists("scripts/chat.sh")
     assert os.path.exists(".continue")
 
 

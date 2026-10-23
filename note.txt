@@ -1,0 +1,119 @@
+
+● What this repo does: It's a Python 3.14 project template with almost no code yet: one main()
+  that prints a line, plus one smoke test. Most of the repo is tooling: a dev container, a local
+  Ollama model, the SkillSpector scanner for third-party skills, pre-commit hooks, CI, and an
+  optional Grafana/Prometheus/Loki dashboard. I assumed the load is one developer on one machine,
+  with CI running on every push.
+
+  I ran pytest, just test, ruff check and ruff format --check, and read every config file and
+  script.
+
+  Must fix
+
+  1. The only test fails (src/test/test_smoke.py:5)
+     - What this is: A smoke test that checks the package imports and has a version.
+     - Problem: It reads test_repository.__version. That attribute doesn't exist; the name is
+       __version__. It also lives in the wrong file: __version__ is defined in the root
+       __init__.py, while src/test_repository/__init__.py is empty. Running it gives
+       AttributeError.
+     - Fix: Move __version__ = "0.1.0" into src/test_repository/__init__.py, delete the root
+       __init__.py, and assert test_repository.__version__.
+     - If we skip it: CI is red on every push, and the pre-commit hook blocks every commit that
+       touches src/.
+  2. The coverage gate fails even after the test is fixed (src/test_repository/main.py)
+     - What this is: Coverage means the share of code lines the tests actually run. The project
+       requires 80% overall and 75% per file.
+     - Problem: Nothing calls main(), so main.py is 0% covered and the total is 33%.
+     - Fix: Add a test that calls main() and checks the output with pytest's capsys. That's about
+       3 lines.
+     - If we skip it: CI and commits stay blocked.
+  3. Tests are in a folder no tool looks at (justfile:14, pyproject.toml coverage omit,
+     .pre-commit-config.yaml files:)
+     - What this is: Each tool needs to know where the tests are.
+     - Problem: The tests are in src/test/. But just test runs ./test/, coverage excludes
+       tests/*, pre-commit watches ^(src/|tests/), and CLAUDE.md says tests/. Right now just test
+       finds 0 tests and exits with code 4. Test files are also counted as covered source code,
+       which inflates the coverage number.
+     - Fix: Move src/test/ to tests/ at the repo root and set the just test default to tests/.
+       Everything else already expects that folder.
+     - If we skip it: just test never runs anything, and the coverage numbers are wrong.
+  4. The skill-scan CI job lets broken scans through, and fails when there are no skills
+     (.github/workflows/skill-scan.yml)
+     - What this is: The CI gate that should block dangerous third-party skills.
+     - Problem: Both scans use continue-on-error. If a scan crashes (exit 2), report.json is
+       missing or has no recommendation, nothing in the case matches, and the step passes. That's
+       fail-open, which the project's security contract says must not happen. Separately,
+       there's no skills/ folder yet, so the SARIF upload fails on every PR.
+     - Fix: Add a *) branch that runs exit 1, and skip the job when skills/ doesn't exist (if:
+       hashFiles('skills/**') != ''). Also drop '**/*.md' from the push paths, so docs edits
+       don't trigger it.
+     - If we skip it: A scan error looks like "safe", and every PR shows a red check you can't
+       fix.
+  5. Tools are installed unpinned, but the docs say they're pinned (.devcontainer/post-create.sh)
+     - What this is: The container setup script that installs uv, just, codegraph, Continue and
+       headroom.
+     - Problem: CLAUDE.md says "pinned versions in post-create.sh", but everything installs the
+       latest version (curl | sh, npm install -g with no version, uv tool install headroom-ai). A
+       bad or compromised release lands on the next rebuild with no warning. Also, the codegraph
+       npm install -g line has no || warn, so under set -e one npm failure stops the rest of the
+       setup.
+     - Fix: Add explicit versions, for example @colbymchenry/codegraph@X.Y.Z,
+       headroom-ai[mcp]==X.Y.Z and UV_VERSION, plus || warn on that npm line.
+     - If we skip it: A rebuild can break, or pull a tampered package, and nobody will know which
+       version changed.
+
+  Should fix
+
+  6. The Grafana dashboards never load
+     (monitoring/grafana/provisioning/datasources/dashboards.yml)
+     - What this is: The file that tells Grafana where dashboard JSON files are.
+     - Problem: It's in provisioning/datasources/, which is the wrong folder, and
+       monitoring/grafana/dashboards/ is empty. On top of that, anonymous visitors are Viewers,
+       who can't use Explore, which is why you see "Unauthorized".
+     - Fix: Move the file to provisioning/dashboards/, add one dashboard JSON, and use the Editor
+       role or log in as admin.
+     - If we skip it: The dashboard stays empty even though the data is in Prometheus.
+  7. The docs point to things that don't exist (CLAUDE.md:23,30, README.md:58-59)
+     - Problem: scripts/chat.sh doesn't exist, and neither do tests/ or skills/ yet. README
+       mentions scripts/new-script.sh and scripts/old.sh, which also don't exist (they may be
+       example names, but they read like real files). CLAUDE.md also mentions a debug-statements
+       exclusion for main.py that isn't in the config. That exclusion isn't needed anyway,
+       because the hook doesn't flag print().
+     - Fix: Delete or correct those lines.
+     - If we skip it: People and agents (including me) run commands that fail.
+  8. Formatting isn't clean, so the first commit gets rewritten (src/test_repository/main.py:2,
+     src/test/test_smoke.py)
+     - Problem: ruff format --check would reformat both files. main.py splits a short string with
+       a backslash for no reason. The pre-commit hook will change these files and make your
+       first commit fail once.
+     - Fix: Run just lint once. Then main.py becomes print("test_repository: hello from
+       test_repository.").
+  9. Stray __init__.py files (/__init__.py, src/__init__.py)
+     - Problem: They make the repo root and src/ look like importable packages, which they
+       aren't. That can confuse pytest's import paths and coverage. The root one is also where
+       __version__ was misplaced (see 1).
+     - Fix: Delete both.
+  10. .codegraph/ isn't gitignored (.gitignore)
+      - Problem: It's a local index of about 236 KB. It shows up as untracked and will get
+        committed by accident.
+      - Fix: Add .codegraph/ to .gitignore.
+
+  Nice to have
+
+  11. :latest image tags in the monitoring stack (.devcontainer/docker-compose.yml). Prometheus'
+      OTLP flags have changed between major versions before, so pin the versions you have now
+      (Grafana is 13.2.4).
+  12. The ruff version differs between pre-commit and the project. Pre-commit uses v0.16.1, while
+      pyproject.toml oCanly requires >=0.15.16. They can format differently, so align them.
+  13. The branch is master, but the main branch is set to main, and there are no commits yet.
+      Rename it with git branch -m main before your first commit.
+
+  Verdict: Fix 1, 2 and 3 first. Together they're about 10 lines, and right now CI and every
+  commit fail. After that, fix 4, because it's the security gate failing open.
+
+  Lean: -2 files (stray __init__.py), -3 lines in main.py. No dependencies to remove.
+
+  Not checked: I didn't run pre-commit run --all-files or a dev container rebuild, and I skimmed
+  README.md / ENVIRONMENT_SETUP.md for broken references without reading them fully. Shellcheck
+  isn't installed, so I only read the shell scripts by eye. I didn't run the CI workflows on
+  GitHub.

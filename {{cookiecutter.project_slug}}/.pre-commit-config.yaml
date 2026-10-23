@@ -53,10 +53,10 @@ repos:
           entry: uv run pytest
           language: system
           pass_filenames: false
-          files: ^(src/|tests/)
+          files: ^src/
         - id: coverage-threshold
           name: per-file coverage floor
           entry: bash -c "uv run coverage json -q && uv run coverage-threshold"
           language: system
           pass_filenames: false
-          files: ^(src/|tests/)
+          files: ^src/

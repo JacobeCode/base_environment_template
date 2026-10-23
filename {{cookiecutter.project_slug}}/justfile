@@ -11,7 +11,7 @@ ask *q:
     ./scripts/ask.sh {{ "{{q}}" }}
 
 # Run tests
-test target="./test/":
+test target="src/test":
     uv run pytest {{ "{{target}}" }}
 
 # Lint + format
