@@ -1,0 +1,27 @@
+{
+  "project_name": "Base Environment Template - replace with your project name",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+  "project_description": "A short one-line description of what this project does.",
+  "author": "jacobecode",
+  "python_version": "3.14",
+  "local_model": [
+    "qwen2.5-coder:14b",
+    "qwen2.5-coder:7b",
+    "deepseek-coder-v2:16b",
+    "none"
+  ],
+  "gpu_usage": [
+    "no",
+    "yes"
+  ],
+  "cuda_version": [
+    "cu130",
+    "cu132",
+    "cu134",
+    "cu126"
+  ],
+  "monitoring": [
+    "no",
+    "yes"
+  ]
+}

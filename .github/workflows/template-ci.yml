@@ -1,0 +1,34 @@
+# .github/workflows/template-ci.yml  (template repo root)
+name: Template CI
+on: [push, pull_request]
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        local_model: ["qwen2.5-coder:14b", "none"]
+        gpu_usage: ["yes", "no"]
+        monitoring: ["yes", "no"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: false
+      - run: uv tool install cookiecutter
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Install package in dev mode
+        run: pip install -e .
+      - name: Render
+        run: |
+          cookiecutter . --no-input \
+            local_model="${{ matrix.local_model }}" \
+            gpu_usage="${{ matrix.gpu_usage }}" \
+            monitoring="${{ matrix.monitoring }}" -o /tmp/out
+      - name: Validate the RENDERED output
+        run: |
+          cd /tmp/out/*
+          uvx ruff check .                                    # rendered Python is real Python
+          python -c "import tomllib,pathlib; tomllib.loads(pathlib.Path('pyproject.toml').read_text())"
+          shellcheck -x scripts/*.sh .devcontainer/post-create.sh   # rendered bash is real bash
+          uvx pre-commit validate-config .pre-commit-config.yaml   # rendered pre-commit config is valid
+          docker compose -f .devcontainer/docker-compose.yml config >/dev/null

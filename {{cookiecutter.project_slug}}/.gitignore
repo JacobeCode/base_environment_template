@@ -1,0 +1,40 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Coverage artifacts (prevents the pre-commit regenerate/fix loop)
+.coverage
+.coverage.*
+coverage.json
+coverage.xml
+htmlcov/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+
+# Envs / packaging
+.venv/
+*.egg-info/
+dist/
+build/
+
+# OS noise (harmless even if you never touch macOS/Windows on this project)
+.DS_Store
+Thumbs.db
+
+# Scan output
+results.sarif
+
+# Script logs (truncated per run; never tracked — see the coverage.json loop)
+logs/
+
+# Local env / secrets
+.env
+
+# Jupyter notebook checkpoints and notebooks themselves (only acceptable in .py format converted)
+.ipynb_checkpoints
+*.ipynb
+
+# CodeGraph output
+.codegraph/

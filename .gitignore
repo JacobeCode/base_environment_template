@@ -1,0 +1,34 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Coverage artifacts (the coverage.json loop)
+.coverage
+.coverage.*
+coverage.json
+coverage.xml
+htmlcov/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+
+# Envs / packaging
+.venv/
+*.egg-info/
+dist/
+build/
+
+# OS noise (harmless even if you never touch macOS/Windows on this repo)
+.DS_Store
+Thumbs.db
+
+# Jupyter / IPython (if you use notebooks in this repo — e.g. exploring
+# SkillSpector's scoring or testing render output interactively)
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Cookiecutter render output (if you bake into the repo while testing)
+/output/
