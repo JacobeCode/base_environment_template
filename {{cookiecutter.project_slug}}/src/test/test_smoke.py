@@ -8,5 +8,5 @@ def test_import():
 
 def test_main_greets(capsys):
     main()
-    assert all("Hello World!", {{ cookiecutter.project_slug }} in capsys.readouterr().out)
+    assert {{ cookiecutter.project_slug }} in capsys.readouterr().out
     

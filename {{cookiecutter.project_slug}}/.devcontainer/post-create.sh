@@ -17,7 +17,7 @@ JUST_VERSION="1.59.0"
 CODEGRAPH_VERSION="1.6.2"
 HEADROOM_VERSION="0.41.0"
 {%- if cookiecutter.local_model != "none" %}
-CONTINUE_CLI_VERSION="2.0.0"
+CONTINUE_CLI_VERSION="1.5.47"
 {%- endif %}
 
 # ---------- UV ----------
@@ -25,7 +25,7 @@ CONTINUE_CLI_VERSION="2.0.0"
 log "Installing uv and syncing project dependencies..."
 
 # uv + project dependencies
-curl -LsSf https://astral.sh/${UV_VERSION:+$UV_VERSION/}install.sh | sh
+curl -LsSf https://astral.sh/uv/${UV_VERSION:+$UV_VERSION/}install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 uv sync
 

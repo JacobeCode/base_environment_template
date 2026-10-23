@@ -26,8 +26,16 @@ if ! resp="$(curl -sf "$OLLAMA/api/generate" -d "$body")"; then
     exit 1
 fi
 
+# An API error must not be printed as if it were the answer, and must not exit 0.
+api_error="$(echo "$resp" | jq -r '.error // empty')"
+if [ -n "$api_error" ]; then
+    warn "ollama returned an error: $api_error"
+    exit 1
+fi
+# The `// empty` guard keeps a malformed reply from printing a bare "null".
+answer="$(echo "$resp" | jq -r '.response // empty')"
+
 # handle errors and fail requests in processing the answer
-answer="$(echo "$resp" | jq -r '.error // .response // empty')"
 if [ -z "$answer" ]; then
     warn "ask.sh: no response from model '$MODEL' - check the name with:" >&2
     log "  docker compose -f .devcontainer/docker-compose.yml exec ollama ollama list" >&2
