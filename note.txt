@@ -104,7 +104,7 @@
       OTLP flags have changed between major versions before, so pin the versions you have now
       (Grafana is 13.2.4).
   12. The ruff version differs between pre-commit and the project. Pre-commit uses v0.16.1, while
-      pyproject.toml only requires >=0.15.16. They can format differently, so align them.
+      pyproject.toml oCanly requires >=0.15.16. They can format differently, so align them.
   13. The branch is master, but the main branch is set to main, and there are no commits yet.
       Rename it with git branch -m main before your first commit.
 
