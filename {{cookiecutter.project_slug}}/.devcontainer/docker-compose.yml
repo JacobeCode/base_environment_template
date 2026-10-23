@@ -48,7 +48,7 @@ services:
 {%- if cookiecutter.local_model != "none" %}
 
   ollama:
-    image: ollama/ollama:v0.40.9
+    image: ollama/ollama:0.40.9
     ports:
       - "127.0.0.1:11434:11434"
     volumes:
@@ -81,7 +81,7 @@ services:
 
   # One-shot: pulls the model into the volume, then exits. Idempotent on rebuilds.
   model-init:
-    image: ollama/ollama:v0.40.9
+    image: ollama/ollama:0.40.9
     depends_on:
       ollama:
         condition: service_healthy
