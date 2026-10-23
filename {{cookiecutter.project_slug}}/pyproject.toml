@@ -33,7 +33,7 @@ build-backend = "hatchling.build"
 packages = ["src/{{cookiecutter.project_slug}}"]
 
 [tool.uv.sources]
-skillspector = { git = "https://github.com/NVIDIA/skillspector.git" }
+skillspector = { git = "https://github.com/NVIDIA/skillspector.git", rev = "v2.13.1" }
 {%- if cookiecutter.gpu_usage == "yes" %}
 torch = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]
 torchvision = [{ index = "pytorch-{{cookiecutter.cuda_version}}" }]

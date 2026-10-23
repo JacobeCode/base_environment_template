@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv tool install git+https://github.com/NVIDIA/skillspector.git
+      - run: uv tool install git+https://github.com/NVIDIA/skillspector.git@v2.13.1
 
       - name: Scan skills and agent instruction files
         if: ${{ hashFiles('skills/**/SKILL.md', 'CLAUDE.md', 'AGENTS.md', '.claude/**', '.continue/**') != '' }}

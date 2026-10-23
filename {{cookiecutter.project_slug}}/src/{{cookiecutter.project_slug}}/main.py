@@ -3,5 +3,5 @@ def main():
     "hello from {{ cookiecutter.project_slug }}.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
